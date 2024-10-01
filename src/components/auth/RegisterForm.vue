@@ -54,7 +54,6 @@
           console.log(data);
   
           if (response.ok) {
-            alert('Registration successful! Redirecting to login.');
             this.router.push('/');
           } else {
             alert(data.message || 'Registration failed');
