@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import LoginForm from './components/auth/LoginForm.vue';
 import AdminDashboard from './components/dashboard/AdminDashboard.vue';
 import UserPage from './components/dashboard/UserDashboard.vue';
+import RegisterForm from './components/auth/RegisterForm.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -11,7 +12,8 @@ const routes = [
     path: '/admin',
     component: AdminDashboard,
     meta: { requiresAdmin: true },
-  }
+  },
+  { path: '/register', component: RegisterForm },
 ];
 
 const router = createRouter({
