@@ -83,7 +83,7 @@ margin-bottom: 20px;
 }
 
 button {
-background-color: #00c9bd;
+background-color: #80d1cc;
 color: white;
 padding: 10px 15px;
 border: none;

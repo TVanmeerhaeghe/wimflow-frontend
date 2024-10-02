@@ -171,7 +171,7 @@ button:disabled {
 }
 
 button {
-  background-color: #00c9bd;
+  background-color: #80d1cc;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -195,7 +195,7 @@ th, td {
 }
 
 th {
-  background-color: #00c9bd;
+  background-color: #80d1cc;
   color: white;
 }
 
@@ -220,7 +220,7 @@ th {
 
 .close-btn {
   margin-top: 20px;
-  background-color: #00c9bd;
+  background-color: #80d1cc;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -229,7 +229,7 @@ th {
 }
 
 .close-btn:hover {
-  background-color: #008f82;
+  background-color: #80d1cc;
 }
 </style>
 

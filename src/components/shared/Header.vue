@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-      <img src="/path/to/logo.png" alt="Logo" class="logo" />
+      <img src="../../assets/logo.svg" alt="Logo" class="logo" />
       <div class="account-options">
         <router-link to="/profile">Mon compte</router-link>
         <button @click="logout">Se déconnecter</button>
@@ -25,9 +25,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    background-color: #00c9bd;
+    background-color: #80d1cc;
     color: white;
-    height: 80px;
+    height: 60px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
@@ -63,7 +63,7 @@
   
   button:hover {
     background-color: white;
-    color: #00c9bd;
+    color: #80d1cc;
   }
   </style>
   

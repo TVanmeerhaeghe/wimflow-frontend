@@ -27,7 +27,7 @@ name: "Sidebar",
 .sidebar {
 height: 100vh;
 width: 150px;
-background-color: #00c9bd;
+background-color: #80d1cc;
 padding: 20px;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 top: 0;
