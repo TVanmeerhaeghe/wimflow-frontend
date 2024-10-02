@@ -5,6 +5,9 @@ import AdminDashboard from './components/dashboard/AdminDashboard.vue';
 import UserPage from './components/dashboard/UserDashboard.vue';
 import RegisterForm from './components/auth/RegisterForm.vue';
 import UsersList from './components/admin/users/UsersList.vue';
+import SitesList from './components/admin/site/SitesList.vue';
+import MaintenancesList from './components/admin/maintenance/MaintenancesList.vue';
+import CreateMaintenance from './components/admin/maintenance/CreateMaintenance.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -20,6 +23,18 @@ const routes = [
       {
         path: 'users',
         component: UsersList,
+      },
+      {
+        path: 'sites',
+        component: SitesList,
+      },
+      {
+        path: 'maintenances',
+        component: MaintenancesList,
+      },
+      {
+        path: 'maintenances/create',
+        component: CreateMaintenance,
       },
     ],
   },
