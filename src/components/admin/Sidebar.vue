@@ -2,7 +2,7 @@
 <div class="sidebar">
   <ul class="menu">
     <li>
-      <router-link to="/admin/dashboard">Dashboard</router-link>
+      <router-link to="/admin">Dashboard</router-link>
     </li>
     <li>
       <router-link to="/admin/users">Utilisateurs</router-link>
@@ -30,7 +30,6 @@ width: 150px;
 background-color: #00c9bd;
 padding: 20px;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-position: fixed;
 top: 0;
 left: 0;
 }
