@@ -1,8 +1,13 @@
 <template>
   <div class="maintenance-list">
-    <h1>Liste des maintenances</h1>
+    <h1>Maintenances</h1>
 
-    <button @click="openCreateMaintenance">Ajouter une maintenance</button>
+    <input
+      type="text"
+      v-model="searchQuery"
+      placeholder="Rechercher une maintenance par nom de site"
+      class="search-bar"
+    />
 
     <table>
       <thead>
@@ -46,112 +51,118 @@
       </tbody>
     </table>
 
+    <button @click="openCreateMaintenance" class="add-maintenance-button">Ajouter une maintenance</button>
+
     <Popup :show="showPopup" @close="closePopup">
       <CreateMaintenance @created="closePopup" />
     </Popup>
   </div>
 </template>
 
-  
-  
-  <script>
-  import { ref, computed, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  import Popup from '../../shared/Popup.vue';
-  import CreateMaintenance from './CreateMaintenance.vue';
-  
-  export default {
-    components: {
-      Popup,
-      CreateMaintenance
-    },
-    setup() {
-      const maintenances = ref([]);
-      const showPopup = ref(false);
-      const router = useRouter();
-  
-      onMounted(async () => {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance`, {
-          headers: {
-            Authorization: `${localStorage.getItem('token')}`,
-          },
-        });
-        maintenances.value = await response.json();
+<script>
+import Popup from '../../shared/Popup.vue';
+import CreateMaintenance from './CreateMaintenance.vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+export default {
+  components: {
+    Popup,
+    CreateMaintenance,
+  },
+  setup() {
+    const maintenances = ref([]);
+    const searchQuery = ref('');
+    const showPopup = ref(false);
+    const router = useRouter();
+
+    onMounted(async () => {
+      const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance`, {
+        headers: {
+          Authorization: `${localStorage.getItem('token')}`,
+        },
       });
-  
-    const sortedMaintenances = computed(() => {
-        return [...maintenances.value].sort((a, b) => {
-            return a.Site.maintenance_status === b.Site.maintenance_status
-            ? 0
-            : a.Site.maintenance_status
-            ? -1
-            : 1;
-        });
+      maintenances.value = await response.json();
     });
-  
-      const openCreateMaintenance = () => {
-        showPopup.value = true; 
-      };
-  
-      const closePopup = () => {
-        showPopup.value = false;
-      };
-  
-      const updateStatus = async (maintenance) => {
-        if (maintenance.status === 'done') {
-          const now = new Date();
-          maintenance.last_maintenance = now;
-          maintenance.next_maintenance = new Date(now.setMonth(now.getMonth() + 1));
-  
-          try {
-            await fetch(`${process.env.VUE_APP_API_URL}/maintenance/maintenance/${maintenance.id}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `${localStorage.getItem('token')}`,
-              },
-              body: JSON.stringify({
-                status: maintenance.status,
-                next_maintenance: maintenance.next_maintenance,
-                last_maintenance: maintenance.last_maintenance
-              }),
-            });
-          } catch (error) {
-            console.error('Erreur lors de la mise à jour du statut', error);
-          }
+
+    const toggleMaintenance = async (maintenance) => {
+      if (maintenance.status === 'done') {
+        const now = new Date();
+        maintenance.last_maintenance = now;
+        maintenance.next_maintenance = new Date(now.setMonth(now.getMonth() + 1));
+
+        try {
+          await fetch(`${process.env.VUE_APP_API_URL}/maintenance/maintenance/${maintenance.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({
+              status: maintenance.status,
+              next_maintenance: maintenance.next_maintenance,
+              last_maintenance: maintenance.last_maintenance,
+            }),
+          });
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour du statut', error);
         }
-      };
-  
-      const editMaintenance = (id) => {
-        router.push(`/admin/maintenance/edit/${id}`);
-      };
-  
-      const formatDate = (date) => {
-        if (!date) return null;
-        return new Date(date).toLocaleDateString();
-      };
-  
-      const getStatusClass = (status) => {
-        return status === 'to_do' ? 'status-to-do' : 'status-done';
-      };
-  
-      return {
-        maintenances,
-        sortedMaintenances,
-        showPopup,
-        openCreateMaintenance,
-        closePopup,
-        updateStatus,
-        editMaintenance,
-        formatDate,
-        getStatusClass
-      };
-    }
-  };
-  </script>
-  
-  
-  <style scoped>
+      }
+    };
+
+    const editMaintenance = (id) => {
+      router.push(`/admin/maintenance/edit/${id}`);
+    };
+
+    const filteredMaintenances = computed(() => {
+      return maintenances.value.filter((maintenance) => {
+        return maintenance.Site?.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+      });
+    });
+
+    const sortedMaintenances = computed(() => {
+      return [...filteredMaintenances.value].sort((a, b) => {
+        if (a.Site.maintenance_status === b.Site.maintenance_status) {
+          return 0;
+        }
+        return a.Site.maintenance_status ? -1 : 1;
+      });
+    });
+
+    const openCreateMaintenance = () => {
+      showPopup.value = true;
+    };
+
+    const closePopup = () => {
+      showPopup.value = false;
+    };
+
+    const formatDate = (date) => {
+      if (!date) return null;
+      return new Date(date).toLocaleDateString();
+    };
+
+    const getStatusClass = (status) => {
+      return status === 'to_do' ? 'status-to-do' : 'status-done';
+    };
+
+    return {
+      maintenances,
+      searchQuery,
+      showPopup,
+      sortedMaintenances,
+      toggleMaintenance,
+      editMaintenance,
+      openCreateMaintenance,
+      closePopup,
+      formatDate,
+      getStatusClass,
+    };
+  },
+};
+</script>
+
+<style scoped>
 .inactive {
   opacity: 0.6;
 }
@@ -180,6 +191,20 @@ button {
   margin-bottom: 20px;
 }
 
+.add-maintenance-button {
+  background-color: #80d1cc;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 50px;
+  width: 250px;
+  position: relative; 
+  left: 82%;
+}
+
 button:hover:not(:disabled) {
   background-color: #008f82;
 }
@@ -197,6 +222,14 @@ th, td {
 th {
   background-color: #80d1cc;
   color: white;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
 }
 
 .popup-overlay {
@@ -229,9 +262,6 @@ th {
 }
 
 .close-btn:hover {
-  background-color: #80d1cc;
+  background-color: #008f82;
 }
 </style>
-
-  
-  

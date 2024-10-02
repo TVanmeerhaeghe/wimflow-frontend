@@ -1,6 +1,6 @@
 <template>
     <div class="users-list">
-      <h1>Liste des utilisateurs</h1>
+      <h1>Utilisateurs</h1>
       <table>
         <thead>
           <tr>
@@ -48,9 +48,6 @@
   </script>
   
   <style scoped>
-  .users-list {
-    padding: 20px;
-  }
   
   table {
     width: 100%;
@@ -64,7 +61,7 @@
   }
   
   th {
-    background-color: #00c9bd;
+    background-color: #80d1cc;
     color: white;
   }
   

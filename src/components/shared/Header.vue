@@ -38,6 +38,8 @@
   .account-options {
     display: flex;
     gap: 30px;
+    white-space: nowrap;
+    align-items: center;
   }
   
   .account-options a {
@@ -59,6 +61,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
+    margin-top: unset;
   }
   
   button:hover {

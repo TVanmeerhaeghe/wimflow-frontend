@@ -1,7 +1,14 @@
 <template>
   <div class="site-list">
-    <h1>Liste des sites</h1>
-    <button @click="openCreateSite">Ajouter un site</button>
+    <h1>Sites</h1>
+
+    <input 
+      type="text" 
+      v-model="searchQuery" 
+      placeholder="Rechercher un site par nom ou URL" 
+      class="search-bar" 
+    />
+
     <table>
       <thead>
         <tr>
@@ -13,7 +20,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="site in sortedSites" :key="site.id" :class="{'inactive': !site.maintenance_status}">
+        <tr v-for="site in filteredSites" :key="site.id">
           <td>{{ site.name }}</td>
           <td>{{ site.url }}</td>
           <td>{{ site.email_maintenance }}</td>
@@ -29,6 +36,8 @@
         </tr>
       </tbody>
     </table>
+
+    <button @click="openCreateSite" class="add-site-button">Ajouter un site</button>
 
     <Popup :show="showPopup" @close="closePopup">
       <CreateSite @created="closePopup" />
@@ -49,6 +58,7 @@ export default {
   },
   setup() {
     const sites = ref([]);
+    const searchQuery = ref('');
     const showPopup = ref(false);
     const router = useRouter();
 
@@ -88,16 +98,24 @@ export default {
       showPopup.value = false;
     };
 
+    const filteredSites = computed(() => {
+      return sites.value.filter(site => {
+        return (
+          site.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          site.url.toLowerCase().includes(searchQuery.value.toLowerCase())
+        );
+      });
+    });
+
     return {
       sites,
+      searchQuery,
       showPopup,
       toggleMaintenance,
       editSite,
       openCreateSite,
       closePopup,
-      sortedSites: computed(() => {
-        return [...sites.value].sort((a, b) => a.maintenance_status === b.maintenance_status ? 0 : a.maintenance_status ? -1 : 1);
-      }),
+      filteredSites,
     };
   }
 };
@@ -116,10 +134,6 @@ button {
 
 button:hover {
   background-color: #008f82;
-}
-
-.inactive {
-  opacity: 0.6;
 }
 
 table {
@@ -141,40 +155,29 @@ td {
   text-align: left;
 }
 
-.site-list {
-  padding: 20px;
-}
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.search-bar {
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
 }
 
-.popup-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-}
-
-.close-btn {
-  margin-top: 20px;
+.add-site-button {
   background-color: #80d1cc;
   color: white;
-  padding: 10px 15px;
+  padding: 15px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 50px;
+  font-size: 18px;
   cursor: pointer;
+  margin-top: 50px;
+  width: 250px;
+  position: relative; 
+  left: 82%;
 }
 
-.close-btn:hover {
+.add-site-button:hover {
   background-color: #008f82;
 }
 </style>
