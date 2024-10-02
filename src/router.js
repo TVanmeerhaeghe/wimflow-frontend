@@ -8,6 +8,8 @@ import UsersList from './components/admin/users/UsersList.vue';
 import SitesList from './components/admin/site/SitesList.vue';
 import MaintenancesList from './components/admin/maintenance/MaintenancesList.vue';
 import CreateMaintenance from './components/admin/maintenance/CreateMaintenance.vue';
+import EditMaintenance from './components/admin/maintenance/EditMaintenance.vue';
+import EditSite from './components/admin/site/EditSite.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -35,6 +37,14 @@ const routes = [
       {
         path: 'maintenances/create',
         component: CreateMaintenance,
+      },
+      {
+        path: '/admin/maintenance/edit/:id',
+        component: EditMaintenance,
+      },
+      {
+        path: '/admin/site/edit/:id',
+        component: EditSite,
       },
     ],
   },
