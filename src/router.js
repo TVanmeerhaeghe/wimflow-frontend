@@ -4,6 +4,7 @@ import LoginForm from './components/auth/LoginForm.vue';
 import AdminDashboard from './components/dashboard/AdminDashboard.vue';
 import UserPage from './components/dashboard/UserDashboard.vue';
 import RegisterForm from './components/auth/RegisterForm.vue';
+import UsersList from './components/admin/users/UsersList.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -15,6 +16,12 @@ const routes = [
     path: '/admin',
     component: AdminDashboard,
     meta: { requiresAdmin: true },
+    children: [
+      {
+        path: 'users',
+        component: UsersList,
+      },
+    ],
   },
   { path: '/register', component: RegisterForm },
 ];

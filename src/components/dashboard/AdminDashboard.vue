@@ -1,12 +1,31 @@
 <template>
-    <div>
-      <h1>Admin Dashboard</h1>
+  <div class="admin-layout">
+    <Sidebar />
+    <div class="content">
+      <router-view></router-view>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'AdminDashboard',
-  };
-  </script>
+  </div>
+</template>
+
+<script>
+import Sidebar from '../admin/Sidebar.vue';
+
+export default {
+  components: {
+    Sidebar,
+  },
+};
+</script>
+
+<style scoped>
+.admin-layout {
+  display: flex;
+}
+
+.content {
+  margin-left: 250px;
+  padding: 20px;
+  width: 100%;
+}
+</style>
   
