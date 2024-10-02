@@ -38,7 +38,7 @@
       });
   
       const updateMaintenance = async () => {
-        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/maintenance/${route.params.id}`, {
+        await fetch(`${process.env.VUE_APP_API_URL}//maintenance/${route.params.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
