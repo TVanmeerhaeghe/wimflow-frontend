@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
 
+:root {
+  --fc-button-bg-color : #80d1cc;
+  --fc-button-border-color : #80d1cc;
+  --fc-button-hover-bg-color : #008f82;
+  --fc-button-hover-border-color : #008f82;
+  --fc-today-bg-color : #80d1cc;
+}
+
 body {
   font-family: "Inter", sans-serif;
   background-color: #ffffff;
