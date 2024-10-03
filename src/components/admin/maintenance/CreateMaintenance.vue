@@ -31,7 +31,7 @@ setup() {
     // Récupérer la liste des sites
     onMounted(async () => {
     try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/sites`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
         headers: {
             Authorization: `${localStorage.getItem('token')}`,
         },
@@ -44,7 +44,7 @@ setup() {
 
     const handleSubmit = async () => {
     try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/maintenance/${selectedSite.value}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/${selectedSite.value}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

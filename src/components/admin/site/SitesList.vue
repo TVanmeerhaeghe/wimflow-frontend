@@ -63,7 +63,7 @@ export default {
     const router = useRouter();
 
     onMounted(async () => {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/sites`, {
+      const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
         headers: {
           Authorization: `${localStorage.getItem('token')}`,
         },

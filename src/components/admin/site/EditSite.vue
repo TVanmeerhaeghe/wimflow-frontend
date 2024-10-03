@@ -38,7 +38,7 @@ export default {
 
     onMounted(async () => {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/site/${route.params.id}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site/${route.params.id}`, {
           headers: {
             Authorization: `${localStorage.getItem('token')}`,
           },
@@ -51,7 +51,7 @@ export default {
 
     const updateSite = async () => {
       try {
-        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/site/${route.params.id}`, {
+        await fetch(`${process.env.VUE_APP_API_URL}/site/modify/${route.params.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

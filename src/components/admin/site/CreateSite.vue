@@ -30,7 +30,7 @@
     },
     methods: {
       async createSite() {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/site`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

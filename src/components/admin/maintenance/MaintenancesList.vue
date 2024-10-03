@@ -41,17 +41,19 @@
           <td>{{ formatDate(maintenance.last_maintenance) || 'Aucune' }}</td>
           <td>
             <button
-              @click="editMaintenance(maintenance.id)"
+              @click="viewMaintenanceDetails(maintenance.id)"
               :disabled="!maintenance.Site.maintenance_status"
             >
-              Modifier
+              Détails
             </button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <button @click="openCreateMaintenance" class="add-maintenance-button">Ajouter une maintenance</button>
+    <button @click="openCreateMaintenance" class="add-maintenance-button">
+      Ajouter une maintenance
+    </button>
 
     <Popup :show="showPopup" @close="closePopup">
       <CreateMaintenance @created="closePopup" />
@@ -85,33 +87,25 @@ export default {
       maintenances.value = await response.json();
     });
 
-    const toggleMaintenance = async (maintenance) => {
-      if (maintenance.status === 'done') {
-        const now = new Date();
-        maintenance.last_maintenance = now;
-        maintenance.next_maintenance = new Date(now.setMonth(now.getMonth() + 1));
-
-        try {
-          await fetch(`${process.env.VUE_APP_API_URL}/maintenance/maintenance/${maintenance.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `${localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify({
-              status: maintenance.status,
-              next_maintenance: maintenance.next_maintenance,
-              last_maintenance: maintenance.last_maintenance,
-            }),
-          });
-        } catch (error) {
-          console.error('Erreur lors de la mise à jour du statut', error);
-        }
+    const updateStatus = async (maintenance) => {
+      try {
+        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/modify/${maintenance.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            status: maintenance.status,
+          }),
+        });
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour du statut', error);
       }
     };
 
-    const editMaintenance = (id) => {
-      router.push(`/admin/maintenance/edit/${id}`);
+    const viewMaintenanceDetails = (id) => {
+      router.push(`/admin/maintenance/details/${id}`);
     };
 
     const filteredMaintenances = computed(() => {
@@ -151,12 +145,12 @@ export default {
       searchQuery,
       showPopup,
       sortedMaintenances,
-      toggleMaintenance,
-      editMaintenance,
       openCreateMaintenance,
       closePopup,
       formatDate,
       getStatusClass,
+      updateStatus,
+      viewMaintenanceDetails,
     };
   },
 };
@@ -171,14 +165,6 @@ select:disabled,
 button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
-}
-
-.status-to-do {
-  color: orange;
-}
-
-.status-done {
-  color: green;
 }
 
 button {
@@ -201,7 +187,7 @@ button {
   cursor: pointer;
   margin-top: 50px;
   width: 250px;
-  position: relative; 
+  position: relative;
   left: 82%;
 }
 
