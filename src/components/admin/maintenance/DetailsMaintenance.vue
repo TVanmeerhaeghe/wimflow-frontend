@@ -4,7 +4,7 @@
 
     <div v-if="maintenance">
       <p><strong>Site :</strong> {{ maintenance.Site.name }}</p>
-      <p  :class="statusSelectClass(maintenance.status)">
+      <p :class="statusSelectClass(maintenance.status)">
         <strong>Statut :</strong>
         <select v-model="maintenance.status" @change="updateStatus(maintenance)">
           <option value="to_do">À faire</option>

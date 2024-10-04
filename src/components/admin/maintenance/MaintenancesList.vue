@@ -210,6 +210,10 @@ th {
   color: white;
 }
 
+td {
+  text-align: center;
+}
+
 .search-bar {
   width: 100%;
   padding: 12px;

@@ -10,6 +10,7 @@ import MaintenancesList from './components/admin/maintenance/MaintenancesList.vu
 import CreateMaintenance from './components/admin/maintenance/CreateMaintenance.vue';
 import EditSite from './components/admin/site/EditSite.vue';
 import DetailsMaintenance from './components/admin/maintenance/DetailsMaintenance.vue';
+import ClientList from './components/admin/client/ClientList.vue'
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -29,6 +30,10 @@ const routes = [
       {
         path: 'sites',
         component: SitesList,
+      },
+      {
+        path: 'clients',
+        component: ClientList,
       },
       {
         path: 'maintenances',

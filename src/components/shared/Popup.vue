@@ -23,7 +23,7 @@
   };
   </script>
   
-  <style scoped>
+<style scoped>
   .popup-overlay {
     position: fixed;
     top: 0;
@@ -38,9 +38,9 @@
   
   .popup-content {
     background: white;
-    padding: 20px;
+    padding: 20px 50px;
     border-radius: 10px;
-    width: 400px;
+    width: 550px;
   }
   
   .close-btn {
@@ -56,5 +56,5 @@
   .close-btn:hover {
     background-color: #008f82;
   }
-  </style>
+</style>
   

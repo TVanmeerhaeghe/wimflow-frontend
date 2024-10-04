@@ -5,13 +5,16 @@
       <router-link to="/admin">Dashboard</router-link>
     </li>
     <li>
-      <router-link to="/admin/users">Utilisateurs</router-link>
+      <router-link to="/admin/users">Collaborateurs</router-link>
     </li>
     <li>
       <router-link to="/admin/sites">Sites</router-link>
     </li>
     <li>
       <router-link to="/admin/maintenances">Maintenances</router-link>
+    </li>
+    <li>
+      <router-link to="/admin/clients">Clients</router-link>
     </li>
   </ul>
 </div>

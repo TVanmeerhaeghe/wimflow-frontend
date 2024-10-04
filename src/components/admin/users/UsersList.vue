@@ -1,6 +1,6 @@
 <template>
     <div class="users-list">
-      <h1>Utilisateurs</h1>
+      <h1>Collaborateurs</h1>
       <table>
         <thead>
           <tr>
