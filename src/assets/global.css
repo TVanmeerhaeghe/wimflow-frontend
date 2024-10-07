@@ -1,15 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 :root {
-  --fc-button-bg-color : #80d1cc;
-  --fc-button-border-color : #80d1cc;
-  --fc-button-hover-bg-color : #008f82;
-  --fc-button-hover-border-color : #008f82;
-  --fc-today-bg-color : #80d1cc;
+  --fc-button-bg-color: #80d1cc;
+  --fc-button-border-color: #80d1cc;
+  --fc-button-hover-bg-color: #008f82;
+  --fc-button-hover-border-color: #008f82;
+  --fc-today-bg-color: #80d1cc;
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: #ffffff;
   color: #333;
   margin: 0;
@@ -24,9 +24,9 @@ body {
 }
 
 .login-form {
-  max-width: 600px; 
+  max-width: 600px;
   width: 100%;
-  padding: 50px; 
+  padding: 50px;
   background-color: white;
   border-radius: 15px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
@@ -38,7 +38,7 @@ body {
   align-items: center;
   height: 100vh;
 }
-  
+
 .register-form {
   max-width: 600px;
   width: 100%;
@@ -49,19 +49,19 @@ body {
 }
 
 .form-group {
-  margin-bottom: 25px; 
+  margin-bottom: 25px;
 }
 
 label {
   display: block;
   font-weight: bold;
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
 }
 
 input {
   width: 100%;
   padding: 18px;
-  font-size: 18px; 
+  font-size: 18px;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-sizing: border-box;
@@ -69,14 +69,14 @@ input {
 
 button {
   width: 100%;
-  padding: 18px; 
-  background-color: #00c9bd;
+  padding: 10px 15px;
+  background-color: #80d1cc;
   color: white;
-  font-size: 18px; 
+  font-size: 18px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 30px; 
+  margin-top: 30px;
 }
 
 button:hover {
@@ -103,11 +103,11 @@ button:hover {
   text-decoration: underline;
 }
 
-.status-to-do select{
+.status-to-do select {
   background-color: orange;
 }
 
-.status-done select{
+.status-done select {
   background-color: #008f82;
 }
 
@@ -137,6 +137,3 @@ select {
   background-repeat: no-repeat;
   background-position: right 5px center;
 }
-
-
-
