@@ -19,6 +19,34 @@
             </div>
 
             <div class="form-group">
+                <label for="phone">Téléphone</label>
+                <input type="text" v-model="client.phone" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" v-model="client.email" />
+            </div>
+
+            <div class="form-group">
+                <label for="client_type">Type de Client</label>
+                <select v-model="client.client_type">
+                    <option value="" disabled>Choisir un type</option>
+                    <option value="Individuel">Individuel</option>
+                    <option value="Entreprise">Entreprise</option>
+                    <option value="Organisation">Organisation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Statut</label>
+                <select v-model="client.status">
+                    <option value="actif">Actif</option>
+                    <option value="inactif">Inactif</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="site">Site associé</label>
                 <select v-model="selectedSiteId">
                     <option value="" disabled>Choisir un site</option>
@@ -62,6 +90,10 @@ export default {
             address: "",
             city: "",
             postal_code: "",
+            phone: "",
+            email: "",
+            client_type: "",
+            status: "actif", // Valeur par défaut
         });
         const selectedSiteId = ref("");
         const sites = ref([]);

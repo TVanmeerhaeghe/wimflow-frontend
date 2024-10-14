@@ -19,6 +19,34 @@
       </div>
 
       <div class="form-group">
+        <label for="phone">Téléphone</label>
+        <input type="text" v-model="phone" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" v-model="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="client_type">Type de Client</label>
+        <select v-model="client_type">
+          <option value="" disabled selected>Choisir un type</option>
+          <option value="Individuel">Individuel</option>
+          <option value="Entreprise">Entreprise</option>
+          <option value="Organisation">Organisation</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Statut</label>
+        <select v-model="status">
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="site">Site associé</label>
         <div class="site-select-container">
           <select v-model="selectedSiteId">
@@ -72,6 +100,10 @@ export default {
     const address = ref("");
     const city = ref("");
     const postal_code = ref("");
+    const phone = ref("");
+    const email = ref("");
+    const client_type = ref("");
+    const status = ref("actif"); // Par défaut : actif
     const selectedSiteId = ref("");
     const sites = ref([]);
     const showSitePopup = ref(false);
@@ -101,6 +133,10 @@ export default {
             address: address.value,
             city: city.value,
             postal_code: postal_code.value,
+            phone: phone.value,
+            email: email.value,
+            client_type: client_type.value,
+            status: status.value,
             site_id: selectedSiteId.value,
           }),
         }
@@ -129,6 +165,10 @@ export default {
       address,
       city,
       postal_code,
+      phone,
+      email,
+      client_type,
+      status,
       selectedSiteId,
       sites,
       showSitePopup,

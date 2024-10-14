@@ -1,36 +1,45 @@
 <template>
   <div class="client-list">
-    <h1>Clients</h1>
+    <div class="header-client">
+      <h1>Clients</h1>
+      <div class="client-stats">
+        <div class="client-actif">
+          <p>{{ activeClientsCount }}</p>
+          <p class="clients-stats-p">clients actifs</p>
+        </div>
+        <div class="client-inactif">
+          <p>{{ inactiveClientsCount }}</p>
+          <p class="clients-stats-p">clients inactifs</p>
+        </div>
+      </div>
+    </div>
 
-    <input
-      type="text"
-      v-model="searchQuery"
-      placeholder="Rechercher un client par nom ou entreprise"
-      class="search-bar"
-    />
+    <input type="text" v-model="searchQuery" placeholder="Rechercher un client par nom ou entreprise"
+      class="search-bar" />
 
     <table>
       <thead>
         <tr>
-          <th>Nom</th>
-          <th>Prénom</th>
           <th>Entreprise</th>
-          <th>Adresse complète</th>
-          <th>Site associé</th>
+          <th>Téléphone</th>
+          <th>Email</th>
+          <th>Date d'inscription</th>
+          <th>Statut</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="client in filteredClients" :key="client.id">
-          <td>{{ client.last_name || "Non défini" }}</td>
-          <td>{{ client.first_name || "Non défini" }}</td>
           <td>{{ client.company }}</td>
-          <td>
-            {{ client.address }} {{ client.city }} {{ client.postal_code }}
+          <td>{{ client.phone || "Non défini" }}</td>
+          <td>{{ client.email || "Non défini" }}</td>
+          <td>{{ client.registration_date ? new Date(client.registration_date).toLocaleDateString() : "Non défini" }}
           </td>
           <td>
-            <a v-if="client.Site" :href="client.Site.url" target="_blank">{{ client.Site.name }}</a>
-            <p v-else>Aucun</p>
+            <label class="switch">
+              <input type="checkbox" :checked="client.status === 'actif'" @change="toggleStatus(client)" />
+              <span class="slider round"></span>
+            </label>
           </td>
           <td>
             <button @click="editClient(client.id)">Modifier</button>
@@ -87,23 +96,33 @@ export default {
       showPopup.value = false;
     };
 
+    const toggleStatus = async (client) => {
+      client.status = client.status === "actif" ? "inactif" : "actif";
+      await fetch(`${process.env.VUE_APP_API_URL}/client/modify/${client.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ status: client.status }),
+      });
+    };
+
     const filteredClients = computed(() => {
       return clients.value.filter((client) => {
         return (
-          client.company
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          (client.last_name || "")
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase())
+          client.company.toLowerCase().includes(searchQuery.value.toLowerCase())
         );
       });
     });
 
-    const formatAddress = (city, postal_code) => {
-      if (!city && !postal_code) return "Non défini";
-      return `${city || ""} ${postal_code || ""}`.trim();
-    };
+    const activeClientsCount = computed(() => {
+      return clients.value.filter((client) => client.status === "actif").length;
+    });
+
+    const inactiveClientsCount = computed(() => {
+      return clients.value.filter((client) => client.status === "inactif").length;
+    });
 
     return {
       clients,
@@ -113,13 +132,47 @@ export default {
       openCreateClient,
       closePopup,
       filteredClients,
-      formatAddress,
+      toggleStatus,
+      activeClientsCount,
+      inactiveClientsCount,
+
     };
   },
 };
 </script>
 
 <style scoped>
+.header-client {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.client-stats {
+  display: flex;
+  gap: 50px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  background-color: #f1f1f1;
+  padding: 10px 30px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.clients-stats-p {
+  font-size: 14px;
+}
+
+.client-actif {
+  color: #008f82;
+}
+
+.client-inactif {
+  color: #d16c6c;
+}
+
 button {
   background-color: #80d1cc;
   color: white;
@@ -178,5 +231,50 @@ td {
 
 .add-client-button:hover {
   background-color: #008f82;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: #008f82;
+}
+
+input:checked+.slider:before {
+  transform: translateX(18px);
 }
 </style>
