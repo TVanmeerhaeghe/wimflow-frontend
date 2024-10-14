@@ -137,3 +137,9 @@ select {
   background-repeat: no-repeat;
   background-position: right 5px center;
 }
+
+a, a:visited{
+  color: #008f82;
+}
+
+

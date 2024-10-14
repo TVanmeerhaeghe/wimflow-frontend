@@ -22,7 +22,7 @@
       <tbody>
         <tr v-for="site in filteredSites" :key="site.id">
           <td>{{ site.name }}</td>
-          <td>{{ site.url }}</td>
+          <td><a :href="site.url">{{ site.url }}</a></td>
           <td>{{ site.email_maintenance }}</td>
           <td>
             <select v-model="site.maintenance_status" @change="toggleMaintenance(site)">
@@ -73,7 +73,7 @@ export default {
 
     const toggleMaintenance = async (site) => {
       try {
-        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/site/${site.id}`, {
+        await fetch(`${process.env.VUE_APP_API_URL}/site/modify/${site.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -130,6 +130,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 20px;
+  margin-top: unset;
 }
 
 button:hover {

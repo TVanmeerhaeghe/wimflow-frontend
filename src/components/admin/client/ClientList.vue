@@ -28,7 +28,10 @@
           <td>
             {{ client.address }} {{ client.city }} {{ client.postal_code }}
           </td>
-          <td>{{ client.Site ? client.Site.name : "Aucun" }}</td>
+          <td>
+            <a v-if="client.Site" :href="client.Site.url" target="_blank">{{ client.Site.name }}</a>
+            <p v-else>Aucun</p>
+          </td>
           <td>
             <button @click="editClient(client.id)">Modifier</button>
           </td>

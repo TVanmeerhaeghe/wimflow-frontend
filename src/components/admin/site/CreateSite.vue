@@ -32,6 +32,8 @@ export default {
   },
   methods: {
     async createSite() {
+      const formattedUrl = this.url.startsWith("http") ? this.url : `https://${this.url}`;
+      
       const response = await fetch(
         `${process.env.VUE_APP_API_URL}/site/create`,
         {
@@ -42,7 +44,7 @@ export default {
           },
           body: JSON.stringify({
             name: this.name,
-            url: this.url,
+            url: formattedUrl,
             email_maintenance: this.email_maintenance,
           }),
         }
