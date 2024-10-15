@@ -1,0 +1,304 @@
+<template>
+    <div class="create-estimate">
+        <h1>Créer un Devis</h1>
+        <form @submit.prevent="createEstimate">
+            <!-- Informations générales du devis -->
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Client</label>
+                    <select v-model="estimate.client_id" required>
+                        <option v-for="client in clients" :key="client.id" :value="client.id">
+                            {{ client.company }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Sélectionner un contact commercial -->
+                <div class="form-group">
+                    <label>Contact commercial</label>
+                    <select v-model="estimate.commercial_contact_id">
+                        <option v-for="user in users" :key="user.id" :value="user.id">
+                            {{ user.email }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Objet</label>
+                    <input type="text" v-model="estimate.object" />
+                </div>
+
+                <!-- Dates côte à côte -->
+                <div class="date-group">
+                    <div class="form-group">
+                        <label>Date de création</label>
+                        <input type="date" v-model="estimate.creation_date" />
+                    </div>
+                    <div class="form-group">
+                        <label>Date de validité</label>
+                        <input type="date" v-model="estimate.validity_date" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Marge HT (€)</label>
+                    <input type="number" v-model="estimate.margin_ht" />
+                </div>
+
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select v-model="estimate.status">
+                        <option>Brouillon</option>
+                        <option>Envoyé</option>
+                        <option>Expiré</option>
+                        <option>Décliné</option>
+                        <option>Accepté</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Note Admin</label>
+                    <textarea v-model="estimate.admin_note"></textarea>
+                </div>
+            </div>
+
+            <!-- Ajouter des tâches dynamiques -->
+            <h2>Tâches</h2>
+            <div v-for="(task, index) in tasks" :key="index" class="task-group">
+                <div class="task-field">
+                    <label>Désignation</label>
+                    <input type="text" v-model="task.designation" placeholder="Nom de la tâche" required />
+                </div>
+                <div class="task-field">
+                    <label>Description</label>
+                    <input type="text" v-model="task.description" placeholder="Description détaillée" />
+                </div>
+                <div class="task-field">
+                    <label>Nb de jours</label>
+                    <input type="number" v-model="task.days" placeholder="Quantité de jours" required />
+                </div>
+                <div class="task-field">
+                    <label>Prix par jour (€)</label>
+                    <input type="number" v-model="task.price_per_day" placeholder="Prix par jour" required />
+                </div>
+                <div class="task-field">
+                    <label>TVA (%)</label>
+                    <input type="number" v-model="task.tva" placeholder="TVA en %" required />
+                </div>
+                <button type="button" @click="removeTask(index)" v-if="tasks.length > 1"
+                    class="remove-button">🗑️</button>
+            </div>
+
+            <!-- Bouton pour ajouter une nouvelle tâche aligné à droite -->
+            <div class="button-right">
+                <button type="button" @click="addTask" class="add-task-button">+ Ajouter une tâche</button>
+            </div>
+
+            <!-- Totaux HT, TVA, TTC alignés à droite -->
+            <div class="totals">
+                <p>Total HT : {{ totalHT.toFixed(2) }} €</p>
+                <p>Total TVA : {{ totalTVA.toFixed(2) }} €</p>
+                <p>Total TTC : {{ totalTTC.toFixed(2) }} €</p>
+            </div>
+
+            <!-- Note finale et conditions de vente en bas -->
+            <div class="form-group">
+                <label>Note Finale</label>
+                <textarea v-model="estimate.final_note"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Conditions Générales de Vente</label>
+                <textarea v-model="estimate.general_sales_conditions"></textarea>
+            </div>
+
+            <!-- Bouton de soumission aligné à droite -->
+            <div class="button-right">
+                <button type="submit" class="submit-button">Créer le devis</button>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+export default {
+    setup() {
+        const estimate = ref({
+            client_id: "",
+            commercial_contact_id: "",
+            creation_date: new Date().toISOString().slice(0, 10),
+            validity_date: new Date(new Date().setMonth(new Date().getMonth() + 1))
+                .toISOString()
+                .slice(0, 10),
+            margin_ht: 0,
+            status: "Brouillon",
+            admin_note: "",
+            advance_payment: 0,
+            discount: 0,
+            final_note: "",
+            general_sales_conditions: "",
+        });
+        const tasks = ref([
+            {
+                designation: "",
+                description: "",
+                days: 1,
+                price_per_day: 0,
+                tva: 20.0,
+            },
+        ]);
+        const clients = ref([]);
+        const users = ref([]);
+        const router = useRouter();
+
+        const fetchData = async () => {
+            try {
+                const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                const clientsData = await clientsResponse.json();
+                console.log("Clients:", clientsData);
+                clients.value = clientsData;
+
+                const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                const usersData = await usersResponse.json();
+                console.log("Users:", usersData);
+                users.value = usersData;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        const addTask = () => {
+            tasks.value.push({
+                designation: "",
+                description: "",
+                days: 1,
+                price_per_day: 0,
+                tva: 20.0,
+            });
+        };
+
+        const removeTask = (index) => {
+            tasks.value.splice(index, 1);
+        };
+
+        const totalHT = computed(() =>
+            tasks.value.reduce((total, task) => total + task.days * task.price_per_day, 0)
+        );
+
+        const totalTVA = computed(() =>
+            tasks.value.reduce((total, task) => {
+                const taskTotalHT = task.days * task.price_per_day;
+                return total + taskTotalHT * (task.tva / 100);
+            }, 0)
+        );
+
+        const totalTTC = computed(() => totalHT.value + totalTVA.value);
+
+        const createEstimate = async () => {
+            try {
+                const estimateResponse = await fetch(`${process.env.VUE_APP_API_URL}/estimate/create`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({ ...estimate.value }),
+                });
+                const newEstimate = await estimateResponse.json();
+
+                for (const task of tasks.value) {
+                    await fetch(`${process.env.VUE_APP_API_URL}/estimate-task/${newEstimate.id}/task`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `${localStorage.getItem("token")}`,
+                        },
+                        body: JSON.stringify(task),
+                    });
+                }
+
+                alert("Devis créé avec succès !");
+                router.push("/admin/estimates");
+            } catch (error) {
+                console.error("Erreur lors de la création du devis :", error);
+            }
+        };
+
+        onMounted(fetchData);
+
+        return {
+            estimate,
+            tasks,
+            clients,
+            users,
+            addTask,
+            removeTask,
+            createEstimate,
+            totalHT,
+            totalTVA,
+            totalTTC,
+        };
+    },
+};
+</script>
+
+<style scoped>
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.date-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.form-group,
+.task-field {
+    flex: 1 1 45%;
+    margin-bottom: 15px;
+}
+
+.task-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.remove-button,
+.add-task-button,
+.submit-button {
+    background-color: #80d1cc;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-task-button,
+.submit-button {
+    float: right;
+}
+
+.totals {
+    text-align: right;
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+.button-right {
+    text-align: right;
+    margin-top: 20px;
+}
+</style>

@@ -12,6 +12,8 @@ import EditSite from './components/admin/site/EditSite.vue';
 import DetailsMaintenance from './components/admin/maintenance/DetailsMaintenance.vue';
 import ClientList from './components/admin/client/ClientList.vue'
 import EditClient from './components/admin/client/EditClient.vue';
+import CreateEstimate from './components/admin/estimate/CreateEstimate.vue';
+import EstimateList from './components/admin/estimate/EstimateList.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -55,6 +57,14 @@ const routes = [
       {
         path: 'maintenances/create',
         component: CreateMaintenance,
+      },
+      {
+        path: 'estimate',
+        component: EstimateList,
+      },
+      {
+        path: 'estimate/create',
+        component: CreateEstimate,
       },
 
     ],
