@@ -7,16 +7,26 @@
                 <tr>
                     <th>ID</th>
                     <th>Client</th>
-                    <th>Date de création</th>
+                    <th>Total HT (€)</th>
+                    <th>Total TVA (€)</th>
+                    <th>Date de Création</th>
+                    <th>Date de Validité</th>
                     <th>Statut</th>
+                    <th>Objet</th>
+                    <th>Marge HT (€)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="estimate in estimates" :key="estimate.id">
                     <td>{{ estimate.id }}</td>
-                    <td>{{ estimate.clientName }}</td>
+                    <td>{{ estimate.Client.company }}</td>
+                    <td>{{ Number(estimate.total_ht || 0).toFixed(2) }}</td>
+                    <td>{{ Number(estimate.total_tva || 0).toFixed(2) }}</td>
                     <td>{{ new Date(estimate.creation_date).toLocaleDateString() }}</td>
+                    <td>{{ new Date(estimate.validity_date).toLocaleDateString() }}</td>
                     <td>{{ estimate.status }}</td>
+                    <td>{{ estimate.object }}</td>
+                    <td>{{ Number(estimate.margin_ht || 0).toFixed(2) }}</td>
                 </tr>
             </tbody>
         </table>
