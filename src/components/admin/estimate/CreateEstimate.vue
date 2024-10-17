@@ -2,7 +2,6 @@
     <div class="create-estimate">
         <h1>Créer un Devis</h1>
         <form @submit.prevent="createEstimate">
-            <!-- Informations générales du devis -->
             <div class="form-container">
                 <div class="form-group">
                     <label>Client</label>
@@ -13,7 +12,6 @@
                     </select>
                 </div>
 
-                <!-- Sélectionner un contact commercial -->
                 <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="estimate.commercial_contact_id">
@@ -28,7 +26,6 @@
                     <input type="text" v-model="estimate.object" />
                 </div>
 
-                <!-- Dates côte à côte -->
                 <div class="date-group">
                     <div class="form-group">
                         <label>Date de création</label>
@@ -62,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- Ajouter des tâches dynamiques -->
             <h2>Tâches</h2>
             <div v-for="(task, index) in tasks" :key="index" class="task-group">
                 <div class="task-field">
@@ -89,19 +85,16 @@
                     class="remove-button">🗑️</button>
             </div>
 
-            <!-- Bouton pour ajouter une nouvelle tâche aligné à droite -->
             <div class="button-right">
                 <button type="button" @click="addTask" class="add-task-button">+ Ajouter une tâche</button>
             </div>
 
-            <!-- Totaux HT, TVA, TTC alignés à droite -->
             <div class="totals">
                 <p>Total HT : {{ totalHT.toFixed(2) }} €</p>
                 <p>Total TVA : {{ totalTVA.toFixed(2) }} €</p>
                 <p>Total TTC : {{ totalTTC.toFixed(2) }} €</p>
             </div>
 
-            <!-- Note finale et conditions de vente en bas -->
             <div class="form-group">
                 <label>Note Finale</label>
                 <textarea v-model="estimate.final_note"></textarea>
@@ -112,7 +105,6 @@
                 <textarea v-model="estimate.general_sales_conditions"></textarea>
             </div>
 
-            <!-- Bouton de soumission aligné à droite -->
             <div class="button-right">
                 <button type="submit" class="submit-button">Créer le devis</button>
             </div>
@@ -224,8 +216,15 @@ export default {
                     });
                 }
 
+                await fetch(`${process.env.VUE_APP_API_URL}/estimate/${newEstimate.id}/update-totals`, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                });
+
                 alert("Devis créé avec succès !");
-                router.push("/admin/estimates");
+                router.push("/admin/estimate");
             } catch (error) {
                 console.error("Erreur lors de la création du devis :", error);
             }
@@ -280,15 +279,22 @@ export default {
 .submit-button {
     background-color: #80d1cc;
     color: white;
-    padding: 5px 10px;
+    padding: 10px 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    width: 250px;
 }
 
-.add-task-button,
-.submit-button {
-    float: right;
+.remove-button {
+    margin-top: unset;
+}
+
+.remove-button:hover,
+.add-task-button:hover,
+.submit-button:hover {
+    background-color: #008f82;
+    transition: background-color 0.3s ease;
 }
 
 .totals {

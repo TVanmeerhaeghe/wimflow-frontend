@@ -16,6 +16,10 @@ body {
   padding: 0;
 }
 
+.main-content{
+  min-height: 100vh;
+}
+
 .login-container {
   display: flex;
   justify-content: center;
@@ -140,6 +144,23 @@ select {
 
 a, a:visited{
   color: #008f82;
+}
+
+textarea {
+  width: 98%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: vertical;
+  font-size: 16px;
+  color: #333;
+}
+
+textarea:focus {
+  border-color: #80d1cc;
+  outline: none;
+  box-shadow: 0 0 5px rgba(128, 209, 204, 0.5);
 }
 
 
