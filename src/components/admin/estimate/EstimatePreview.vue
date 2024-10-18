@@ -1,12 +1,17 @@
 <template>
     <div class="estimate-preview-overlay">
         <div class="estimate-preview-content">
-            <div class="action-buttons">
-                <button @click="emitEvent('edit', estimate)" class="edit-button" title="Modifier">✏️</button>
-                <button @click="emitEvent('download', estimate)" class="pdf-button"
-                    title="Télécharger en PDF">📄</button>
-                <button class="invoice-button" title="Transformer en Facture">💼</button>
-                <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
+            <div class="actions">
+                <div class="status-container">
+                    <p class="status-text">{{ estimate.status }}</p>
+                </div>
+                <div class="action-buttons">
+                    <button @click="emitEvent('edit', estimate)" class="edit-button" title="Modifier">✏️</button>
+                    <button @click="emitEvent('download', estimate)" class="pdf-button"
+                        title="Télécharger en PDF">📄</button>
+                    <button class="invoice-button" title="Transformer en Facture">💼</button>
+                    <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
+                </div>
             </div>
 
             <div class="estimate-header">
@@ -15,7 +20,8 @@
                     <CompanyInfo />
                     <div class="client-info">
                         <p><strong>Destinataire :</strong> {{ estimate.Client?.company }}</p>
-                        <p><strong>Date de devis :</strong> {{ new Date(estimate.creation_date).toLocaleDateString() }}
+                        <p><strong>Date de création :</strong> {{ new Date(estimate.creation_date).toLocaleDateString()
+                            }}
                         </p>
                         <p><strong>Date de validité :</strong> {{ new Date(estimate.validity_date).toLocaleDateString()
                             }}</p>
@@ -32,10 +38,7 @@
                 <p><strong>Total TTC :</strong> {{ (totalHT + totalTVA).toFixed(2) }} €</p>
             </div>
 
-            <!-- <div class="footer-info">
-                <p><strong>Conditions Générales de Vente</strong></p>
-                <p>{{ estimate.general_sales_conditions }}</p>
-            </div> -->
+            <CompanyTerms />
         </div>
     </div>
 </template>
@@ -43,6 +46,7 @@
 <script>
 import TaskList from '../task/TaskList.vue';
 import CompanyInfo from '../CompanyInfo.vue';
+import CompanyTerms from '../CompanyTerms.vue';
 
 export default {
     props: {
@@ -51,6 +55,7 @@ export default {
     components: {
         CompanyInfo,
         TaskList,
+        CompanyTerms,
     },
     data() {
         return {
@@ -87,6 +92,12 @@ export default {
 .estimate-preview-content {
     max-width: 90%;
     margin: 0 auto;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .action-buttons {
@@ -158,5 +169,18 @@ export default {
 .footer-info {
     margin-top: 40px;
     font-size: 12px;
+}
+
+.status-container {
+    border: 2px solid #80d1cc;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.status-text {
+    color: #80d1cc;
+    font-weight: bold;
+    margin: 0;
 }
 </style>

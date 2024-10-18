@@ -14,6 +14,8 @@ import ClientList from './components/admin/client/ClientList.vue'
 import EditClient from './components/admin/client/EditClient.vue';
 import CreateEstimate from './components/admin/estimate/CreateEstimate.vue';
 import EstimateList from './components/admin/estimate/EstimateList.vue';
+import Settings from './components/admin/settings/Settings.vue';
+import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -65,6 +67,13 @@ const routes = [
       {
         path: 'estimate/create',
         component: CreateEstimate,
+      },
+      { 
+        path: 'settings', 
+        component: Settings, 
+        children: [
+          { path: 'company-info', component: CompanyInfoForm },
+        ]
       },
 
     ],

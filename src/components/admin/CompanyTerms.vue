@@ -1,9 +1,10 @@
 <template>
-    <div class="company-info" v-if="company">
-        <h3>{{ company.name }}</h3>
-        <p>{{ company.address }}</p>
-        <p>{{ company.postal_code }} {{ company.city }}</p>
-        <p>{{ company.phone }}</p>
+    <div class="footer-info" v-if="company">
+        <p><strong>Informations de Paiement</strong></p>
+        <p>{{ company.payment_info }}</p>
+
+        <p class="terms-top"><strong>Conditions Générales de Vente</strong></p>
+        <p>{{ company.general_sales_conditions }}</p>
     </div>
     <div v-else>
         <p>Chargement des informations...</p>
@@ -14,7 +15,7 @@
 import { ref, onMounted } from 'vue';
 
 export default {
-    name: 'CompanyInfo',
+    name: 'CompanyTerms',
     setup() {
         const company = ref(null);
 
@@ -47,7 +48,12 @@ export default {
 </script>
 
 <style scoped>
-.company-info {
-    font-size: 14px;
+.footer-info {
+    margin-top: 40px;
+    font-size: 12px;
+}
+
+.terms-top {
+    margin-top: 20px;
 }
 </style>

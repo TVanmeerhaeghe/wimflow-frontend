@@ -24,6 +24,9 @@
       <li>
         <router-link to="/admin/users">Collaborateurs</router-link>
       </li>
+      <li>
+        <router-link to="/admin/settings">Paramètres</router-link>
+      </li>
     </ul>
   </div>
 </template>

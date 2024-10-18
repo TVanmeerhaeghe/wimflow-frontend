@@ -9,7 +9,7 @@
                         <th>#</th>
                         <th>Désignation</th>
                         <th>Description</th>
-                        <th>Qté.</th>
+                        <th>Jour</th>
                         <th>Prix unitaire (€)</th>
                         <th>Montant HT (€)</th>
                     </tr>
