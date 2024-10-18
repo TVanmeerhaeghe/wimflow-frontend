@@ -100,11 +100,6 @@
                 <textarea v-model="estimate.final_note"></textarea>
             </div>
 
-            <div class="form-group">
-                <label>Conditions Générales de Vente</label>
-                <textarea v-model="estimate.general_sales_conditions"></textarea>
-            </div>
-
             <div class="button-right">
                 <button type="submit" class="submit-button">Créer le devis</button>
             </div>

@@ -17,8 +17,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="estimate in estimates" :key="estimate.id">
-                    <td>{{ estimate.id }}</td>
+                <tr v-for="estimate in estimates" :key="estimate.id" @click="showPreview(estimate)">
+                    <td><a class="clickable-id">{{ estimate.id }}</a></td>
                     <td>{{ estimate.Client.company }}</td>
                     <td>{{ Number(estimate.total_ht || 0).toFixed(2) }}</td>
                     <td>{{ Number(estimate.total_tva || 0).toFixed(2) }}</td>
@@ -32,20 +32,38 @@
         </table>
 
         <button @click="goToCreateEstimate" class="create-estimate-button">Créer un devis</button>
+
+        <EstimatePreview v-if="selectedEstimate" :estimate="selectedEstimate" @close="closePreview"
+            @edit="editEstimate" />
     </div>
 </template>
 
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import EstimatePreview from './EstimatePreview.vue';
 
 export default {
+    components: { EstimatePreview },
     setup() {
         const estimates = ref([]);
+        const selectedEstimate = ref(null);
         const router = useRouter();
 
         const goToCreateEstimate = () => {
             router.push("/admin/estimate/create");
+        };
+
+        const showPreview = (estimate) => {
+            selectedEstimate.value = estimate;
+        };
+
+        const closePreview = () => {
+            selectedEstimate.value = null;
+        };
+
+        const editEstimate = (estimate) => {
+            router.push(`/admin/estimate/edit/${estimate.id}`);
         };
 
         onMounted(async () => {
@@ -59,7 +77,11 @@ export default {
 
         return {
             estimates,
+            selectedEstimate,
             goToCreateEstimate,
+            showPreview,
+            closePreview,
+            editEstimate,
         };
     },
 };
@@ -98,5 +120,13 @@ td {
 th {
     background-color: #80d1cc;
     color: white;
+}
+
+.clickable-id {
+    cursor: pointer;
+}
+
+.clickable-id:hover {
+    text-decoration: underline;
 }
 </style>
