@@ -1,44 +1,46 @@
 <template>
     <div class="estimate-preview-overlay">
-        <div class="estimate-preview-content">
+        <div>
             <div class="actions">
                 <div class="status-container">
                     <p class="status-text">{{ estimate.status }}</p>
                 </div>
                 <div class="action-buttons">
                     <button @click="emitEvent('edit', estimate)" class="edit-button" title="Modifier">✏️</button>
-                    <button @click="emitEvent('download', estimate)" class="pdf-button"
-                        title="Télécharger en PDF">📄</button>
+                    <button @click="generatePDF" class="pdf-button" title="Télécharger en PDF">📄</button>
                     <button class="invoice-button" title="Transformer en Facture">💼</button>
                     <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
                 </div>
             </div>
 
-            <div class="estimate-header">
-                <h1>{{ estimate.id }}</h1>
-                <div class="infos">
-                    <CompanyInfo />
-                    <div class="client-info">
-                        <p><strong>Destinataire :</strong> {{ estimate.Client?.company }}</p>
-                        <p><strong>Date de création :</strong> {{ new Date(estimate.creation_date).toLocaleDateString()
-                            }}
-                        </p>
-                        <p><strong>Date de validité :</strong> {{ new Date(estimate.validity_date).toLocaleDateString()
-                            }}</p>
+            <div class="estimate-preview-content" ref="pdfContent">
+                <div class="estimate-header">
+                    <h1>{{ estimate.id }}</h1>
+                    <div class="infos">
+                        <CompanyInfo />
+                        <div class="client-info">
+                            <p><strong>Destinataire :</strong> {{ estimate.Client?.company }}</p>
+                            <p><strong>Date de création :</strong> {{ new
+                                Date(estimate.creation_date).toLocaleDateString()
+                                }}</p>
+                            <p><strong>Date de validité :</strong> {{ new
+                                Date(estimate.validity_date).toLocaleDateString()
+                                }}</p>
+                        </div>
                     </div>
+                    <p><strong>Objet :</strong> {{ estimate.object }}</p>
                 </div>
-                <p><strong>Objet :</strong> {{ estimate.object }}</p>
+
+                <TaskList :estimateId="estimate.id" @updateTotals="updateTotals" />
+
+                <div class="totals">
+                    <p><strong>Total HT :</strong> {{ totalHT.toFixed(2) }} €</p>
+                    <p><strong>TVA :</strong> {{ totalTVA.toFixed(2) }} €</p>
+                    <p><strong>Total TTC :</strong> {{ (totalHT + totalTVA).toFixed(2) }} €</p>
+                </div>
+
+                <CompanyTerms />
             </div>
-
-            <TaskList :estimateId="estimate.id" @updateTotals="updateTotals" />
-
-            <div class="totals">
-                <p><strong>Total HT :</strong> {{ totalHT.toFixed(2) }} €</p>
-                <p><strong>TVA :</strong> {{ totalTVA.toFixed(2) }} €</p>
-                <p><strong>Total TTC :</strong> {{ (totalHT + totalTVA).toFixed(2) }} €</p>
-            </div>
-
-            <CompanyTerms />
         </div>
     </div>
 </template>
@@ -47,6 +49,7 @@
 import TaskList from '../task/TaskList.vue';
 import CompanyInfo from '../CompanyInfo.vue';
 import CompanyTerms from '../CompanyTerms.vue';
+import html2pdf from 'html2pdf.js';
 
 export default {
     props: {
@@ -70,6 +73,18 @@ export default {
         },
         emitEvent(event, data = null) {
             this.$emit(event, data);
+        },
+        generatePDF() {
+            const element = this.$refs.pdfContent;
+            const opt = {
+                margin: [1, 0, 0, 0],
+                filename: `Devis_${this.estimate.id}_Wimersion.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
     }
 };
@@ -98,6 +113,8 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 90%;
+    margin: 0 auto;
 }
 
 .action-buttons {
