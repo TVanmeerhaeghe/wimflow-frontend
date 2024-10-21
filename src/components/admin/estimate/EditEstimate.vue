@@ -1,7 +1,7 @@
 <template>
-    <div class="create-estimate">
-        <h1>Créer un Devis</h1>
-        <form @submit.prevent="createEstimate">
+    <div class="edit-estimate">
+        <h1>Modifier un Devis</h1>
+        <form @submit.prevent="updateEstimate">
             <div class="form-container">
                 <div class="form-group">
                     <label>Client</label>
@@ -101,79 +101,103 @@
             </div>
 
             <div class="button-right">
-                <button type="submit" class="submit-button">Créer le devis</button>
+                <button type="submit" class="submit-button">Mettre à jour le devis</button>
             </div>
         </form>
     </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 export default {
     setup() {
         const estimate = ref({
+            id: null,
             client_id: "",
             commercial_contact_id: "",
-            creation_date: new Date().toISOString().slice(0, 10),
-            validity_date: new Date(new Date().setMonth(new Date().getMonth() + 1))
-                .toISOString()
-                .slice(0, 10),
+            creation_date: "",
+            validity_date: "",
             margin_ht: 0,
             status: "Brouillon",
             admin_note: "",
             advance_payment: 0,
             discount: 0,
             final_note: "",
-            general_sales_conditions: "",
         });
-        const tasks = ref([
-            {
-                designation: "",
-                description: "",
-                days: 1,
-                price_per_day: 0,
-                tva: 20.0,
-            },
-        ]);
+
+        const tasks = ref([]);
         const clients = ref([]);
         const users = ref([]);
         const router = useRouter();
+        const route = useRoute();
 
-        const fetchData = async () => {
+        const fetchEstimate = async () => {
+            const estimateId = route.params.id;
+            try {
+                const estimateResponse = await fetch(`${process.env.VUE_APP_API_URL}/estimate/${estimateId}`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                const estimateData = await estimateResponse.json();
+                estimate.value = estimateData;
+                tasks.value = estimateData.EstimateTasks || [];
+            } catch (error) {
+                console.error("Erreur lors de la récupération du devis :", error);
+            }
+        };
+
+        const fetchClients = async () => {
             try {
                 const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
                 const clientsData = await clientsResponse.json();
-                console.log("Clients:", clientsData);
                 clients.value = clientsData;
+            } catch (error) {
+                console.error("Erreur lors de la récupération des clients :", error);
+            }
+        };
 
+        const fetchUsers = async () => {
+            try {
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
                 const usersData = await usersResponse.json();
-                console.log("Users:", usersData);
                 users.value = usersData;
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Erreur lors de la récupération des utilisateurs :", error);
             }
         };
 
-        const addTask = () => {
-            tasks.value.push({
-                designation: "",
-                description: "",
-                days: 1,
-                price_per_day: 0,
-                tva: 20.0,
-            });
+        const updateTask = async (task) => {
+            const estimateId = route.params.id;
+            try {
+                await fetch(`${process.env.VUE_APP_API_URL}/estimate-task/${estimateId}/task/${task.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify(task),
+                });
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de la tâche :", error);
+            }
         };
 
-        const removeTask = (index) => {
-            tasks.value.splice(index, 1);
-        };
+        watch(
+            tasks,
+            (newTasks) => {
+                newTasks.forEach((task) => {
+                    if (task.id) {
+                        updateTask(task);
+                    }
+                });
+            },
+            { deep: true }
+        );
 
         const totalHT = computed(() =>
             tasks.value.reduce((total, task) => total + task.days * task.price_per_day, 0)
@@ -188,56 +212,39 @@ export default {
 
         const totalTTC = computed(() => totalHT.value + totalTVA.value);
 
-        const createEstimate = async () => {
+        const updateEstimate = async () => {
             try {
-                const estimateResponse = await fetch(`${process.env.VUE_APP_API_URL}/estimate/create`, {
-                    method: "POST",
+                const estimateId = estimate.value.id;
+                await fetch(`${process.env.VUE_APP_API_URL}/estimate/${estimateId}`, {
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `${localStorage.getItem("token")}`,
                     },
-                    body: JSON.stringify({ ...estimate.value }),
-                });
-                const newEstimate = await estimateResponse.json();
-
-                for (const task of tasks.value) {
-                    await fetch(`${process.env.VUE_APP_API_URL}/estimate-task/${newEstimate.id}/task`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `${localStorage.getItem("token")}`,
-                        },
-                        body: JSON.stringify(task),
-                    });
-                }
-
-                await fetch(`${process.env.VUE_APP_API_URL}/estimate/${newEstimate.id}/update-totals`, {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `${localStorage.getItem("token")}`,
-                    },
+                    body: JSON.stringify(estimate.value),
                 });
 
-                alert("Devis créé avec succès !");
                 router.push("/admin/estimate");
             } catch (error) {
-                console.error("Erreur lors de la création du devis :", error);
+                console.error("Erreur lors de la mise à jour du devis :", error);
             }
         };
 
-        onMounted(fetchData);
+        onMounted(() => {
+            fetchEstimate();
+            fetchClients();
+            fetchUsers();
+        });
 
         return {
             estimate,
             tasks,
             clients,
             users,
-            addTask,
-            removeTask,
-            createEstimate,
             totalHT,
             totalTVA,
             totalTTC,
+            updateEstimate,
         };
     },
 };
@@ -267,7 +274,7 @@ export default {
 
 .task-group {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     margin-top: 10px;
     align-items: flex-start;
 }
@@ -299,7 +306,7 @@ export default {
 }
 
 .remove-button {
-    margin-top: unset;
+    margin-top: 35px;
 }
 
 .remove-button:hover,

@@ -16,6 +16,7 @@ import CreateEstimate from './components/admin/estimate/CreateEstimate.vue';
 import EstimateList from './components/admin/estimate/EstimateList.vue';
 import Settings from './components/admin/settings/Settings.vue';
 import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
+import EditEstimate from './components/admin/estimate/EditEstimate.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -68,6 +69,10 @@ const routes = [
         path: 'estimate/create',
         component: CreateEstimate,
       },
+      {
+        path: 'estimate/edit/:id',
+        component: EditEstimate,
+      },
       { 
         path: 'settings', 
         component: Settings, 
@@ -75,7 +80,6 @@ const routes = [
           { path: 'company-info', component: CompanyInfoForm },
         ]
       },
-
     ],
   },
   { path: '/register', component: RegisterForm },

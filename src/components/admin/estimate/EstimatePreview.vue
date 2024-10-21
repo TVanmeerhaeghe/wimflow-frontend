@@ -21,11 +21,9 @@
                         <div class="client-info">
                             <p><strong>Destinataire :</strong> {{ estimate.Client?.company }}</p>
                             <p><strong>Date de création :</strong> {{ new
-                                Date(estimate.creation_date).toLocaleDateString()
-                                }}</p>
+                                Date(estimate.creation_date).toLocaleDateString() }}</p>
                             <p><strong>Date de validité :</strong> {{ new
-                                Date(estimate.validity_date).toLocaleDateString()
-                                }}</p>
+                                Date(estimate.validity_date).toLocaleDateString() }}</p>
                         </div>
                     </div>
                     <p><strong>Objet :</strong> {{ estimate.object }}</p>
@@ -72,7 +70,11 @@ export default {
             this.totalTVA = totalTVA;
         },
         emitEvent(event, data = null) {
-            this.$emit(event, data);
+            if (event === 'edit') {
+                this.$router.push(`/admin/estimate/edit/${data.id}`);
+            } else {
+                this.$emit(event, data);
+            }
         },
         generatePDF() {
             const element = this.$refs.pdfContent;
