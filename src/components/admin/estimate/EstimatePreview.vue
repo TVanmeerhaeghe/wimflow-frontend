@@ -9,6 +9,7 @@
                     <button @click="emitEvent('edit', estimate)" class="edit-button" title="Modifier">✏️</button>
                     <button @click="generatePDF" class="pdf-button" title="Télécharger en PDF">📄</button>
                     <button class="invoice-button" title="Transformer en Facture">💼</button>
+                    <button @click="sendEmail" class="email-button" title="Envoyer par email">📧</button>
                     <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
                 </div>
             </div>
@@ -87,6 +88,50 @@ export default {
             };
 
             html2pdf().set(opt).from(element).save();
+        },
+        async generatePDFForEmail() {
+            const element = this.$refs.pdfContent;
+            const opt = {
+                margin: [1, 0, 0, 0],
+                filename: `Devis_${this.estimate.id}_Wimersion.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            return new Promise((resolve, reject) => {
+                html2pdf()
+                    .set(opt)
+                    .from(element)
+                    .outputPdf('datauristring')
+                    .then((pdfBase64) => {
+                        resolve(pdfBase64);
+                    })
+                    .catch((err) => reject(err));
+            });
+        },
+        async sendEmail() {
+            try {
+                const pdfBase64 = await this.generatePDFForEmail();
+
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/estimate/send-email/${this.estimate.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({ pdfBase64 }),
+                });
+
+                if (response.ok) {
+                    alert('Devis envoyé par email avec succès.');
+                } else {
+                    const errorData = await response.json();
+                    alert(`Erreur lors de l'envoi du devis par email : ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error("Erreur lors de l'envoi de l'email :", error);
+            }
         }
     }
 };
