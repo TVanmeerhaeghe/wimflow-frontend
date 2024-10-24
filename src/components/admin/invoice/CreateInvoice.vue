@@ -1,0 +1,320 @@
+<template>
+    <div class="create-invoice">
+        <h1>Créer une Facture</h1>
+        <form @submit.prevent="createInvoice">
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Client</label>
+                    <select v-model="invoice.client_id" required>
+                        <option v-for="client in clients" :key="client.id" :value="client.id">
+                            {{ client.company }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Contact commercial</label>
+                    <select v-model="invoice.commercial_contact_id">
+                        <option v-for="user in users" :key="user.id" :value="user.id">
+                            {{ user.email }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Objet</label>
+                    <input type="text" v-model="invoice.object" />
+                </div>
+
+                <div class="date-group">
+                    <div class="form-group">
+                        <label>Date de création</label>
+                        <input type="date" v-model="invoice.creation_date" />
+                    </div>
+                    <div class="form-group">
+                        <label>Date de validité</label>
+                        <input type="date" v-model="invoice.due_date" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Marge HT (€)</label>
+                    <input type="number" v-model="invoice.margin_ht" />
+                </div>
+
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select v-model="invoice.status">
+                        <option>Brouillon</option>
+                        <option>Envoyé</option>
+                        <option>Expiré</option>
+                        <option>Décliné</option>
+                        <option>Accepté</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Note Admin</label>
+                    <textarea v-model="invoice.admin_note"></textarea>
+                </div>
+            </div>
+
+            <h2>Tâches</h2>
+            <div v-for="(task, index) in tasks" :key="index" class="task-group">
+                <div class="task-field designation">
+                    <label>Désignation</label>
+                    <input type="text" v-model="task.designation" placeholder="Nom de la tâche" required />
+                </div>
+                <div class="task-field description">
+                    <label>Description</label>
+                    <textarea v-model="task.description" placeholder="Description détaillée"></textarea>
+                </div>
+                <div class="task-field nb-jours">
+                    <label>Nb de jours</label>
+                    <input type="number" v-model="task.days" placeholder="Quantité de jours" required />
+                </div>
+                <div class="task-field prix-jour">
+                    <label>Prix par jour (€)</label>
+                    <input type="number" v-model="task.price_per_day" placeholder="Prix par jour" required />
+                </div>
+                <div class="task-field tva">
+                    <label>TVA (%)</label>
+                    <input type="number" v-model="task.tva" placeholder="TVA en %" required />
+                </div>
+                <button type="button" @click="removeTask(index)" v-if="tasks.length > 1"
+                    class="remove-button">🗑️</button>
+            </div>
+
+            <div class="button-right">
+                <button type="button" @click="addTask" class="add-task-button">+ Ajouter une tâche</button>
+            </div>
+
+            <div class="totals">
+                <p>Total HT : {{ totalHT.toFixed(2) }} €</p>
+                <p>Total TVA : {{ totalTVA.toFixed(2) }} €</p>
+                <p>Total TTC : {{ totalTTC.toFixed(2) }} €</p>
+            </div>
+
+            <div class="form-group">
+                <label>Note Finale</label>
+                <textarea v-model="invoice.final_note"></textarea>
+            </div>
+
+            <div class="button-right">
+                <button type="submit" class="submit-button">Créer la facture</button>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+export default {
+    setup() {
+        const invoice = ref({
+            client_id: "",
+            commercial_contact_id: "",
+            creation_date: new Date().toISOString().slice(0, 10),
+            due_date: new Date(new Date().setMonth(new Date().getMonth() + 1))
+                .toISOString()
+                .slice(0, 10),
+            margin_ht: 0,
+            status: "Brouillon",
+            admin_note: "",
+            advance_payment: 0,
+            discount: 0,
+            final_note: "",
+            general_sales_conditions: "",
+        });
+        const tasks = ref([
+            {
+                designation: "",
+                description: "",
+                days: 1,
+                price_per_day: 0,
+                tva: 20.0,
+            },
+        ]);
+        const clients = ref([]);
+        const users = ref([]);
+        const router = useRouter();
+
+        const fetchData = async () => {
+            try {
+                const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                const clientsData = await clientsResponse.json();
+                clients.value = clientsData;
+
+                const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                const usersData = await usersResponse.json();
+                users.value = usersData;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        const addTask = () => {
+            tasks.value.push({
+                designation: "",
+                description: "",
+                days: 1,
+                price_per_day: 0,
+                tva: 20.0,
+            });
+        };
+
+        const removeTask = (index) => {
+            tasks.value.splice(index, 1);
+        };
+
+        const totalHT = computed(() =>
+            tasks.value.reduce((total, task) => total + task.days * task.price_per_day, 0)
+        );
+
+        const totalTVA = computed(() =>
+            tasks.value.reduce((total, task) => {
+                const taskTotalHT = task.days * task.price_per_day;
+                return total + taskTotalHT * (task.tva / 100);
+            }, 0)
+        );
+
+        const totalTTC = computed(() => totalHT.value + totalTVA.value);
+
+        const createInvoice = async () => {
+            try {
+                const invoiceResponse = await fetch(`${process.env.VUE_APP_API_URL}/invoice/create`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({ ...invoice.value }),
+                });
+                const newInvoice = await invoiceResponse.json();
+
+                for (const task of tasks.value) {
+                    await fetch(`${process.env.VUE_APP_API_URL}/invoice-task/${newInvoice.id}/task`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `${localStorage.getItem("token")}`,
+                        },
+                        body: JSON.stringify(task),
+                    });
+                }
+
+                await fetch(`${process.env.VUE_APP_API_URL}/invoice/${newInvoice.id}/update-totals`, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                });
+
+                alert("Facture créée avec succès !");
+                router.push("/admin/invoice");
+            } catch (error) {
+                console.error("Erreur lors de la création de la facture :", error);
+            }
+        };
+
+        onMounted(fetchData);
+
+        return {
+            invoice,
+            tasks,
+            clients,
+            users,
+            addTask,
+            removeTask,
+            createInvoice,
+            totalHT,
+            totalTVA,
+            totalTTC,
+        };
+    },
+};
+</script>
+
+<style scoped>
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.date-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.task-field {
+    margin-bottom: 15px;
+}
+
+.form-group {
+    flex: 1 1 45%;
+    margin-bottom: 15px;
+}
+
+.task-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: flex-start;
+}
+
+.designation {
+    width: 25%;
+}
+
+.description {
+    width: 45%;
+}
+
+.nb-jours,
+.prix-jour,
+.tva {
+    width: 8.5%;
+}
+
+.remove-button,
+.add-task-button,
+.submit-button {
+    background-color: #80d1cc;
+    color: white;
+    padding: 10px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 250px;
+}
+
+.remove-button {
+    margin-top: unset;
+}
+
+.remove-button:hover,
+.add-task-button:hover,
+.submit-button:hover {
+    background-color: #008f82;
+    transition: background-color 0.3s ease;
+}
+
+.totals {
+    text-align: right;
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+.button-right {
+    text-align: right;
+    margin-top: 20px;
+}
+</style>

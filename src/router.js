@@ -10,18 +10,22 @@ import MaintenancesList from './components/admin/maintenance/MaintenancesList.vu
 import CreateMaintenance from './components/admin/maintenance/CreateMaintenance.vue';
 import EditSite from './components/admin/site/EditSite.vue';
 import DetailsMaintenance from './components/admin/maintenance/DetailsMaintenance.vue';
-import ClientList from './components/admin/client/ClientList.vue'
+import ClientList from './components/admin/client/ClientList.vue';
 import EditClient from './components/admin/client/EditClient.vue';
 import CreateEstimate from './components/admin/estimate/CreateEstimate.vue';
 import EstimateList from './components/admin/estimate/EstimateList.vue';
+import EditEstimate from './components/admin/estimate/EditEstimate.vue';
+import CreateInvoice from './components/admin/invoice/CreateInvoice.vue';
+import InvoiceList from './components/admin/invoice/InvoiceList.vue';
+import EditInvoice from './components/admin/invoice/EditInvoice.vue';
 import Settings from './components/admin/settings/Settings.vue';
 import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
-import EditEstimate from './components/admin/estimate/EditEstimate.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
-  { path: '/user', 
-    component: UserPage, 
+  {
+    path: '/user',
+    component: UserPage,
     meta: { requiresAuth: true },
   },
   {
@@ -73,12 +77,24 @@ const routes = [
         path: 'estimate/edit/:id',
         component: EditEstimate,
       },
-      { 
-        path: 'settings', 
-        component: Settings, 
+      {
+        path: 'invoice',
+        component: InvoiceList,
+      },
+      {
+        path: 'invoice/create',
+        component: CreateInvoice,
+      },
+      {
+        path: 'invoice/edit/:id',
+        component: EditInvoice,
+      },
+      {
+        path: 'settings',
+        component: Settings,
         children: [
           { path: 'company-info', component: CompanyInfoForm },
-        ]
+        ],
       },
     ],
   },
@@ -87,51 +103,48 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
 
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!token) {
-            return next({ path: '/' });
-        }
-
-        try {
-            const decodedToken = jwtDecode(token);
-
-            if (!decodedToken) {
-            return next({ path: '/' });
-            }
-        } catch (error) {
-            console.error('Invalid token', error);
-            return next({ path: '/' });
-        }
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!token) {
+      return next({ path: '/' });
     }
 
-    if (to.matched.some(record => record.meta.requiresAdmin)) {
-        if (!token) {
-        return next({ path: '/' });
-        }
+    try {
+      const decodedToken = jwtDecode(token);
 
-        try {
-        const decodedToken = jwtDecode(token);
-
-        if (decodedToken.role !== 'admin') {
-            alert('Accès refusé. Vous devez être administrateur.');
-            return next({ path: '/' });
-        }
-        } catch (error) {
-        console.error('Invalid token', error);
+      if (!decodedToken) {
         return next({ path: '/' });
-        }
+      }
+    } catch (error) {
+      console.error('Invalid token', error);
+      return next({ path: '/' });
     }
+  }
+
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (!token) {
+      return next({ path: '/' });
+    }
+
+    try {
+      const decodedToken = jwtDecode(token);
+
+      if (decodedToken.role !== 'admin') {
+        alert('Accès refusé. Vous devez être administrateur.');
+        return next({ path: '/' });
+      }
+    } catch (error) {
+      console.error('Invalid token', error);
+      return next({ path: '/' });
+    }
+  }
 
   next();
 });
 
 export default router;
-
-
-

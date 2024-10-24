@@ -16,6 +16,9 @@
           <li>
             <router-link to="/admin/estimate">Devis</router-link>
           </li>
+          <li>
+            <router-link to="/admin/invoice">Factures</router-link>
+          </li>
         </ul>
       </li>
       <li>
