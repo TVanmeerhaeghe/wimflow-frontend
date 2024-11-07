@@ -22,6 +22,9 @@
         </ul>
       </li>
       <li>
+        <router-link to="/admin/project">Projets</router-link>
+      </li>
+      <li>
         <router-link to="/admin/maintenances">Maintenances</router-link>
       </li>
       <li>

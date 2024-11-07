@@ -20,6 +20,8 @@ import InvoiceList from './components/admin/invoice/InvoiceList.vue';
 import EditInvoice from './components/admin/invoice/EditInvoice.vue';
 import Settings from './components/admin/settings/Settings.vue';
 import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
+import CreateProject from './components/admin/project/CreateProject.vue';
+import ProjectList from './components/admin/project/ProjectList.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -89,6 +91,18 @@ const routes = [
         path: 'invoice/edit/:id',
         component: EditInvoice,
       },
+      {
+        path: "project",
+        component: ProjectList,
+      },
+      {
+        path: "project/create",
+        component: CreateProject,
+      },
+      // {
+      //   path: "projects/edit/:id",
+      //   component: EditProject,
+      // },     
       {
         path: 'settings',
         component: Settings,
