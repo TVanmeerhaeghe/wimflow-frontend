@@ -38,9 +38,12 @@ import { ref, onMounted, watch } from 'vue';
 export default {
     name: 'TaskList',
     props: {
-        estimateId: {
+        estimateId: String,
+        invoiceId: String,
+        type: {
             type: String,
             required: true,
+            validator: value => ['estimate', 'invoice'].includes(value),
         },
     },
     setup(props, { emit }) {
@@ -50,7 +53,8 @@ export default {
 
         const fetchTasks = async () => {
             try {
-                const response = await fetch(`${process.env.VUE_APP_API_URL}/estimate-task/${props.estimateId}/tasks`, {
+                const id = props.type === 'estimate' ? props.estimateId : props.invoiceId;
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/${props.type}-task/${id}/tasks`, {
                     headers: {
                         Authorization: localStorage.getItem("token"),
                     },

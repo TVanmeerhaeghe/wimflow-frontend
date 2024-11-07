@@ -8,7 +8,6 @@
                 <div class="action-buttons">
                     <button @click="emitEvent('edit', invoice)" class="edit-button" title="Modifier">✏️</button>
                     <button @click="generatePDF" class="pdf-button" title="Télécharger en PDF">📄</button>
-                    <button class="estimate-button" title="Transformer en Devis">📜</button>
                     <button @click="sendEmail" class="email-button" title="Envoyer par email">📧</button>
                     <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
                 </div>
@@ -30,7 +29,7 @@
                     <p><strong>Objet :</strong> {{ invoice.object }}</p>
                 </div>
 
-                <TaskList :invoiceId="invoice.id" @updateTotals="updateTotals" />
+                <TaskList :invoiceId="invoice.id" type="invoice" @updateTotals="updateTotals" />
 
                 <div class="totals">
                     <p><strong>Total HT :</strong> {{ totalHT.toFixed(2) }} €</p>

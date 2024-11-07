@@ -30,7 +30,7 @@
                     <p><strong>Objet :</strong> {{ estimate.object }}</p>
                 </div>
 
-                <TaskList :estimateId="estimate.id" @updateTotals="updateTotals" />
+                <TaskList :estimateId="estimate.id" type="estimate" @updateTotals="updateTotals" />
 
                 <div class="totals">
                     <p><strong>Total HT :</strong> {{ totalHT.toFixed(2) }} €</p>
