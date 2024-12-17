@@ -22,6 +22,7 @@ import Settings from './components/admin/settings/Settings.vue';
 import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
 import CreateProject from './components/admin/project/CreateProject.vue';
 import ProjectList from './components/admin/project/ProjectList.vue';
+import EditProject from './components/admin/project/EditProject.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -99,10 +100,10 @@ const routes = [
         path: "project/create",
         component: CreateProject,
       },
-      // {
-      //   path: "projects/edit/:id",
-      //   component: EditProject,
-      // },     
+      {
+        path: "project/edit/:id",
+        component: EditProject,
+      },
       {
         path: 'settings',
         component: Settings,
