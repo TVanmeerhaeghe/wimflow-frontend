@@ -1,6 +1,5 @@
 <template>
     <div class="edit-project">
-        <h1>Modifier le projet</h1>
         <form @submit.prevent="handleUpdate">
             <div class="form-row">
                 <div class="form-group">
@@ -98,8 +97,7 @@ export default {
         const toast = useToast();
 
         const formatDateForInput = (isoDate) => {
-            if (!isoDate) return '';
-            return isoDate.split('T')[0];
+            return isoDate ? isoDate.split('T')[0] : '';
         };
 
         const fetchProject = async () => {
@@ -114,11 +112,10 @@ export default {
                     start_date: formatDateForInput(data.start_date),
                     end_date: formatDateForInput(data.end_date),
                 };
-
                 selectedMembers.value = data.Members.map((member) => member.id);
             } catch (error) {
-                console.error("Erreur lors de la récupération du projet :", error);
                 toast.error("Erreur lors de la récupération du projet.");
+                console.error("Erreur :", error);
             }
         };
 
@@ -132,12 +129,11 @@ export default {
                         headers: { Authorization: localStorage.getItem("token") },
                     }),
                 ]);
-
                 clients.value = await clientsResponse.json();
                 admins.value = await adminsResponse.json();
             } catch (error) {
-                console.error("Erreur lors du chargement des clients ou admins :", error);
                 toast.error("Erreur lors du chargement des données.");
+                console.error("Erreur :", error);
             }
         };
 
@@ -173,14 +169,13 @@ export default {
 
                 if (response.ok) {
                     toast.success("Projet mis à jour avec succès !");
-                    router.push("/admin/project");
+                    router.push(`/admin/project/details/${route.params.id}/overview`);
                 } else {
-                    const errorData = await response.json();
-                    toast.error(`Erreur lors de la mise à jour : ${errorData.message || "Erreur inconnue"}`);
+                    toast.error("Erreur lors de la mise à jour du projet.");
                 }
             } catch (error) {
-                console.error("Erreur lors de la mise à jour :", error);
                 toast.error("Erreur lors de la mise à jour du projet.");
+                console.error("Erreur :", error);
             }
         };
 
@@ -203,7 +198,6 @@ export default {
     },
 };
 </script>
-
 
 <style scoped>
 .edit-project {

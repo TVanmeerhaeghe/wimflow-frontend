@@ -22,7 +22,10 @@ import Settings from './components/admin/settings/Settings.vue';
 import CompanyInfoForm from './components/admin/settings/tabs/CompanyInfoForm.vue';
 import CreateProject from './components/admin/project/CreateProject.vue';
 import ProjectList from './components/admin/project/ProjectList.vue';
-import EditProject from './components/admin/project/EditProject.vue';
+import ProjectDetails from './components/admin/project/ProjectDetails.vue';
+import ProjectOverview from './components/admin/project/tabs/ProjectOverview.vue';
+import ProjectKanban from './components/admin/project/tabs/ProjectKanban.vue';
+import ProjectEdit from './components/admin/project/tabs/ProjectEdit.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -101,8 +104,22 @@ const routes = [
         component: CreateProject,
       },
       {
-        path: "project/edit/:id",
-        component: EditProject,
+        path: '/admin/project/details/:id',
+        component: ProjectDetails,
+        children: [
+          {
+            path: 'overview',
+            component: ProjectOverview,
+          },
+          {
+            path: 'kanban',
+            component: ProjectKanban,
+          },
+          {
+            path: 'edit',
+            component: ProjectEdit,
+          },
+        ],
       },
       {
         path: 'settings',

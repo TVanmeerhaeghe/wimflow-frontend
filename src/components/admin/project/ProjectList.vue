@@ -12,18 +12,19 @@
                     <th>Client</th>
                     <th>Date de début</th>
                     <th>Date de fin</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="project in filteredProjects" :key="project.id">
-                    <td>{{ project.name }}</td>
+                    <td>
+                        <router-link :to="`/admin/project/details/${project.id}/overview`" class="project-link">
+                            {{ project.name }}
+                        </router-link>
+                    </td>
+
                     <td>{{ project.Client?.company || "Non défini" }}</td>
                     <td>{{ formatDate(project.start_date) }}</td>
                     <td>{{ formatDate(project.end_date) || "En cours" }}</td>
-                    <td>
-                        <button @click="editProject(project.id)">Modifier</button>
-                    </td>
                 </tr>
             </tbody>
         </table>
@@ -70,10 +71,6 @@ export default {
             router.push("/admin/project/create");
         };
 
-        const editProject = (id) => {
-            router.push(`/admin/project/edit/${id}`);
-        };
-
         const filteredProjects = computed(() => {
             return projects.value.filter((project) => {
                 return (
@@ -93,7 +90,6 @@ export default {
             searchQuery,
             filteredProjects,
             createProject,
-            editProject,
             formatDate,
         };
     },
