@@ -2,12 +2,8 @@
   <div class="maintenance-list">
     <h1>Maintenances</h1>
 
-    <input
-      type="text"
-      v-model="searchQuery"
-      placeholder="Rechercher une maintenance par nom de site"
-      class="search-bar"
-    />
+    <input type="text" v-model="searchQuery" placeholder="Rechercher une maintenance par nom de site"
+      class="search-bar" />
 
     <table>
       <thead>
@@ -20,19 +16,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="maintenance in sortedMaintenances"
-          :key="maintenance.id"
-          :class="{ inactive: !maintenance.Site.maintenance_status }"
-        >
+        <tr v-for="maintenance in sortedMaintenances" :key="maintenance.id"
+          :class="{ inactive: !maintenance.Site.maintenance_status }">
           <td v-if="maintenance.Site">{{ maintenance.Site.name }}</td>
           <td v-else>Non défini</td>
           <td :class="getStatusClass(maintenance.status)">
-            <select
-              v-model="maintenance.status"
-              @change="updateStatus(maintenance)"
-              :disabled="!maintenance.Site.maintenance_status"
-            >
+            <select v-model="maintenance.status" @change="updateStatus(maintenance)"
+              :disabled="!maintenance.Site.maintenance_status">
               <option value="to_do">À faire</option>
               <option value="done">Terminé</option>
             </select>
@@ -40,10 +30,7 @@
           <td>{{ formatDate(maintenance.next_maintenance) }}</td>
           <td>{{ formatDate(maintenance.last_maintenance) || 'Aucune' }}</td>
           <td>
-            <button
-              @click="viewMaintenanceDetails(maintenance.id)"
-              :disabled="!maintenance.Site.maintenance_status"
-            >
+            <button @click="viewMaintenanceDetails(maintenance.id)" :disabled="!maintenance.Site.maintenance_status">
               Détails
             </button>
           </td>
@@ -56,7 +43,7 @@
     </button>
 
     <Popup :show="showPopup" @close="closePopup">
-      <CreateMaintenance @created="closePopup" />
+      <CreateMaintenance :onClose="closePopup" :reloadTable="loadMaintenances" />
     </Popup>
   </div>
 </template>
@@ -66,6 +53,7 @@ import Popup from '../../shared/Popup.vue';
 import CreateMaintenance from './CreateMaintenance.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 
 export default {
   components: {
@@ -77,19 +65,27 @@ export default {
     const searchQuery = ref('');
     const showPopup = ref(false);
     const router = useRouter();
+    const toast = useToast();
 
-    onMounted(async () => {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance`, {
-        headers: {
-          Authorization: `${localStorage.getItem('token')}`,
-        },
-      });
-      maintenances.value = await response.json();
-    });
+    const loadMaintenances = async () => {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance`, {
+          headers: {
+            Authorization: `${localStorage.getItem('token')}`,
+          },
+        });
+        maintenances.value = await response.json();
+      } catch (error) {
+        console.error('Erreur lors de la récupération des maintenances', error);
+        toast.error('Erreur lors de la récupération des maintenances.');
+      }
+    };
+
+    onMounted(loadMaintenances);
 
     const updateStatus = async (maintenance) => {
       try {
-        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/modify/${maintenance.id}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/modify/${maintenance.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -99,8 +95,15 @@ export default {
             status: maintenance.status,
           }),
         });
+
+        if (response.ok) {
+          toast.success('Statut mis à jour avec succès.');
+        } else {
+          throw new Error('Erreur serveur');
+        }
       } catch (error) {
         console.error('Erreur lors de la mise à jour du statut', error);
+        toast.error('Erreur lors de la mise à jour du statut.');
       }
     };
 
@@ -151,6 +154,7 @@ export default {
       getStatusClass,
       updateStatus,
       viewMaintenanceDetails,
+      loadMaintenances,
     };
   },
 };
@@ -200,7 +204,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   border-bottom: 1px solid #ddd;
 }

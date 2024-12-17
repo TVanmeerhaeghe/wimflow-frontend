@@ -35,12 +35,14 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
         const projects = ref([]);
         const searchQuery = ref("");
         const router = useRouter();
+        const toast = useToast();
 
         const fetchProjects = async () => {
             try {
@@ -50,10 +52,14 @@ export default {
                     },
                 });
 
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des projets.");
+                }
+
                 const data = await response.json();
                 projects.value = Array.isArray(data) ? data : [];
             } catch (error) {
-                console.error("Error fetching projects:", error);
+                toast.error("Erreur lors du chargement des projets.");
                 projects.value = [];
             }
         };

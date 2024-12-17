@@ -48,6 +48,7 @@ import TaskList from '../task/TaskList.vue';
 import CompanyInfo from '../CompanyInfo.vue';
 import CompanyTerms from '../CompanyTerms.vue';
 import html2pdf from 'html2pdf.js';
+import { useToast } from 'vue-toastification';
 
 export default {
     props: {
@@ -63,6 +64,10 @@ export default {
             totalHT: 0,
             totalTVA: 0,
         };
+    },
+    setup() {
+        const toast = useToast();
+        return { toast };
     },
     methods: {
         updateTotals({ totalHT, totalTVA }) {
@@ -86,7 +91,17 @@ export default {
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save();
+            html2pdf()
+                .set(opt)
+                .from(element)
+                .save()
+                .then(() => {
+                    this.toast.success("PDF généré avec succès !");
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de la génération du PDF :", error);
+                    this.toast.error("Erreur lors de la génération du PDF.");
+                });
         },
         async generatePDFForEmail() {
             const element = this.$refs.pdfContent;
@@ -123,13 +138,14 @@ export default {
                 });
 
                 if (response.ok) {
-                    alert('Facture envoyée par email avec succès.');
+                    this.toast.success("Facture envoyée par email avec succès !");
                 } else {
                     const errorData = await response.json();
-                    alert(`Erreur lors de l'envoi de la facture par email : ${errorData.message}`);
+                    this.toast.error(`Erreur lors de l'envoi de la facture par email : ${errorData.message}`);
                 }
             } catch (error) {
                 console.error("Erreur lors de l'envoi de l'email :", error);
+                this.toast.error("Erreur lors de l'envoi de l'email.");
             }
         }
     }

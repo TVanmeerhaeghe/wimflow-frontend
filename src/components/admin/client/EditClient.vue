@@ -80,6 +80,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -93,12 +94,13 @@ export default {
             phone: "",
             email: "",
             client_type: "",
-            status: "actif", // Valeur par défaut
+            status: "actif",
         });
         const selectedSiteId = ref("");
         const sites = ref([]);
         const route = useRoute();
         const router = useRouter();
+        const toast = useToast();
 
         const fetchClientData = async () => {
             try {
@@ -114,7 +116,8 @@ export default {
 
                 selectedSiteId.value = client.value.site_id || "";
             } catch (error) {
-                console.error("Erreur lors de la récupération des données du client", error);
+                toast.error("Erreur lors de la récupération des données.");
+                console.error(error);
             }
         };
 
@@ -135,13 +138,15 @@ export default {
                 });
 
                 if (response.ok) {
-                    alert("Client mis à jour avec succès");
+                    toast.success("Client mis à jour avec succès !");
                     router.push("/admin/clients");
                 } else {
-                    alert("Erreur lors de la mise à jour du client");
+                    const errorData = await response.json();
+                    toast.error(`Erreur : ${errorData.message || "Mise à jour échouée"}`);
                 }
             } catch (error) {
-                console.error("Erreur lors de la mise à jour du client", error);
+                toast.error("Erreur de connexion au serveur.");
+                console.error(error);
             }
         };
 
@@ -157,8 +162,9 @@ export default {
 
 <style scoped>
 .form-container {
-    max-height: 70vh;
-    overflow-y: auto;
+    /* Suppression du scroll limité */
+    max-width: 100%;
+    overflow: visible;
 }
 
 .form-row {

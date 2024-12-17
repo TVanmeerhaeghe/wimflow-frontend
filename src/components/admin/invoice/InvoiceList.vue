@@ -40,6 +40,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 import InvoicePreview from './InvoicePreview.vue';
 
 export default {
@@ -48,6 +49,7 @@ export default {
         const invoices = ref([]);
         const selectedInvoice = ref(null);
         const router = useRouter();
+        const toast = useToast();
 
         const goToCreateInvoice = () => {
             router.push("/admin/invoice/create");
@@ -66,12 +68,22 @@ export default {
         };
 
         onMounted(async () => {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/invoice`, {
-                headers: {
-                    Authorization: `${localStorage.getItem("token")}`,
-                },
-            });
-            invoices.value = await response.json();
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/invoice`, {
+                    headers: {
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erreur lors du chargement des factures.");
+                }
+
+                invoices.value = await response.json();
+            } catch (error) {
+                toast.error("Impossible de charger les factures. Veuillez réessayer.");
+                console.error(error);
+            }
         });
 
         return {
@@ -85,6 +97,7 @@ export default {
     },
 };
 </script>
+
 
 <style scoped>
 .create-invoice-button {

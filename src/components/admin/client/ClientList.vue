@@ -53,8 +53,9 @@
     </button>
 
     <Popup :show="showPopup" @close="closePopup">
-      <CreateClient @created="closePopup" />
+      <CreateClient @created="onClientCreated" />
     </Popup>
+
   </div>
 </template>
 
@@ -63,6 +64,7 @@ import Popup from "../../shared/Popup.vue";
 import CreateClient from "./CreateClient.vue";
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
   components: {
@@ -74,15 +76,23 @@ export default {
     const searchQuery = ref("");
     const showPopup = ref(false);
     const router = useRouter();
+    const toast = useToast();
 
-    onMounted(async () => {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
-        headers: {
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-      });
-      clients.value = await response.json();
-    });
+    const fetchClients = async () => {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+        clients.value = await response.json();
+      } catch (error) {
+        toast.error("Erreur lors du chargement des clients.");
+        console.error("Erreur fetchClients :", error);
+      }
+    };
+
+    onMounted(fetchClients);
 
     const editClient = (id) => {
       router.push(`/admin/client/edit/${id}`);
@@ -96,16 +106,27 @@ export default {
       showPopup.value = false;
     };
 
+    const onClientCreated = () => {
+      closePopup();
+      toast.success("Liste des clients mise à jour.");
+      fetchClients();
+    };
+
     const toggleStatus = async (client) => {
       client.status = client.status === "actif" ? "inactif" : "actif";
-      await fetch(`${process.env.VUE_APP_API_URL}/client/modify/${client.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ status: client.status }),
-      });
+      try {
+        await fetch(`${process.env.VUE_APP_API_URL}/client/modify/${client.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ status: client.status }),
+        });
+        toast.success(`Statut de ${client.company} mis à jour avec succès.`);
+      } catch (error) {
+        toast.error("Erreur lors de la mise à jour du statut.");
+      }
     };
 
     const filteredClients = computed(() => {
@@ -135,11 +156,13 @@ export default {
       toggleStatus,
       activeClientsCount,
       inactiveClientsCount,
-
+      onClientCreated,
+      fetchClients,
     };
   },
 };
 </script>
+
 
 <style scoped>
 .header-client {
@@ -174,6 +197,7 @@ export default {
 }
 
 button {
+  width: 100%;
   background-color: #80d1cc;
   color: white;
   padding: 10px 15px;

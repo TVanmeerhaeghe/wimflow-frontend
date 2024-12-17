@@ -32,10 +32,11 @@
   </div>
 </template>
 
-  
+
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
   setup() {
@@ -43,45 +44,68 @@ export default {
     const notes = ref([]);
     const newNote = ref("");
     const route = useRoute();
+    const toast = useToast();
+
+    const loadMaintenance = async () => {
+      try {
+        const maintenanceResponse = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/${route.params.id}`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+        maintenance.value = await maintenanceResponse.json();
+      } catch (error) {
+        console.error("Erreur lors de la récupération de la maintenance", error);
+        toast.error("Erreur lors de la récupération de la maintenance.");
+      }
+    };
+
+    const loadNotes = async () => {
+      try {
+        const notesResponse = await fetch(`${process.env.VUE_APP_API_URL}/note/maintenance/${route.params.id}/notes`, {
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+        notes.value = await notesResponse.json();
+      } catch (error) {
+        console.error("Erreur lors de la récupération des notes", error);
+        toast.error("Erreur lors de la récupération des notes.");
+      }
+    };
 
     onMounted(async () => {
-      const maintenanceResponse = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/${route.params.id}`, {
-        headers: {
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-      });
-      maintenance.value = await maintenanceResponse.json();
-
-      const notesResponse = await fetch(`${process.env.VUE_APP_API_URL}/note/maintenance/${route.params.id}/notes`, {
-        headers: {
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-      });
-      notes.value = await notesResponse.json();
+      await loadMaintenance();
+      await loadNotes();
     });
 
     const addNote = async () => {
-      await fetch(`${process.env.VUE_APP_API_URL}/note/maintenance/${route.params.id}/note`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ content: newNote.value }),
-      });
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/note/maintenance/${route.params.id}/note`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ content: newNote.value }),
+        });
 
-      const notesResponse = await fetch(`${process.env.VUE_APP_API_URL}/note/maintenance/${route.params.id}/notes`, {
-        headers: {
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-      });
-      notes.value = await notesResponse.json();
-      newNote.value = "";
+        if (response.ok) {
+          toast.success("Note ajoutée avec succès.");
+          await loadNotes();
+          newNote.value = "";
+        } else {
+          throw new Error("Erreur lors de l'ajout de la note.");
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de la note", error);
+        toast.error("Erreur lors de l'ajout de la note.");
+      }
     };
 
     const updateStatus = async (maintenance) => {
       try {
-        await fetch(`${process.env.VUE_APP_API_URL}/maintenance/modify/${maintenance.id}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/maintenance/modify/${maintenance.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -89,8 +113,14 @@ export default {
           },
           body: JSON.stringify({ status: maintenance.status }),
         });
+
+        if (response.ok) {
+          toast.success("Statut mis à jour avec succès.");
+        } else {
+          throw new Error("Erreur lors de la mise à jour du statut.");
+        }
       } catch (error) {
-        console.error("Erreur lors de la mise à jour du statut", error);
+        toast.error("Erreur lors de la mise à jour du statut.");
       }
     };
 
@@ -119,21 +149,20 @@ export default {
 };
 </script>
 
-  
-  <style scoped>
-  .maintenance-details {
-    padding: 20px;
-  }
-  
-  .notes-section {
-    margin-top: 20px;
-  }
-  
-  textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
+<style scoped>
+.maintenance-details {
+  padding: 20px;
+}
+
+.notes-section {
+  margin-top: 20px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
 
 .add-note-button {
   background-color: #80d1cc;
@@ -148,9 +177,8 @@ export default {
   position: relative;
   left: 82%;
 }
-  
-  button:hover {
-    background-color: #008f82;
-  }
-  </style>
-  
+
+button:hover {
+  background-color: #008f82;
+}
+</style>

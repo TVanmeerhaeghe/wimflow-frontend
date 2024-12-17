@@ -110,6 +110,7 @@
 <script>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -132,6 +133,7 @@ export default {
         const users = ref([]);
         const router = useRouter();
         const route = useRoute();
+        const toast = useToast();
 
         const fetchInvoice = async () => {
             const invoiceId = route.params.id;
@@ -152,8 +154,7 @@ export default {
                 const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const clientsData = await clientsResponse.json();
-                clients.value = clientsData;
+                clients.value = await clientsResponse.json();
             } catch (error) {
                 console.error("Erreur lors de la récupération des clients :", error);
             }
@@ -164,8 +165,7 @@ export default {
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const usersData = await usersResponse.json();
-                users.value = usersData;
+                users.value = await usersResponse.json();
             } catch (error) {
                 console.error("Erreur lors de la récupération des utilisateurs :", error);
             }
@@ -224,9 +224,11 @@ export default {
                     body: JSON.stringify(invoice.value),
                 });
 
+                toast.success("Facture mise à jour avec succès !");
                 router.push("/admin/invoice");
             } catch (error) {
                 console.error("Erreur lors de la mise à jour de la facture :", error);
+                toast.error("Erreur lors de la mise à jour de la facture.");
             }
         };
 

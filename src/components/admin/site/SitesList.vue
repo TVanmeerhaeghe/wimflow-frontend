@@ -2,12 +2,7 @@
   <div class="site-list">
     <h1>Sites</h1>
 
-    <input 
-      type="text" 
-      v-model="searchQuery" 
-      placeholder="Rechercher un site par nom ou URL" 
-      class="search-bar" 
-    />
+    <input type="text" v-model="searchQuery" placeholder="Rechercher un site par nom ou URL" class="search-bar" />
 
     <table>
       <thead>
@@ -46,43 +41,54 @@
 </template>
 
 <script>
-import Popup from '../../shared/Popup.vue';
-import CreateSite from './CreateSite.vue';
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import Popup from "../../shared/Popup.vue";
+import CreateSite from "./CreateSite.vue";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
-  components: {
-    Popup,
-    CreateSite
-  },
+  components: { Popup, CreateSite },
   setup() {
     const sites = ref([]);
-    const searchQuery = ref('');
+    const searchQuery = ref("");
     const showPopup = ref(false);
     const router = useRouter();
+    const toast = useToast();
 
-    onMounted(async () => {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
-        headers: {
-          Authorization: `${localStorage.getItem('token')}`,
-        },
-      });
-      sites.value = await response.json();
-    });
+    const loadSites = async () => {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
+          headers: { Authorization: `${localStorage.getItem("token")}` },
+        });
+        sites.value = await response.json();
+      } catch (error) {
+        console.error("Erreur lors du chargement des sites :", error);
+        toast.error("Erreur lors du chargement des sites.");
+      }
+    };
+
+    onMounted(loadSites);
 
     const toggleMaintenance = async (site) => {
       try {
-        await fetch(`${process.env.VUE_APP_API_URL}/site/modify/${site.id}`, {
-          method: 'PUT',
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site/modify/${site.id}`, {
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `${localStorage.getItem('token')}`,
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ maintenance_status: site.maintenance_status }),
         });
+
+        if (response.ok) {
+          toast.success("Statut de maintenance mis à jour.");
+        } else {
+          toast.error("Erreur lors de la mise à jour du statut.");
+        }
       } catch (error) {
-        console.error('Erreur lors de la mise à jour du statut', error);
+        console.error("Erreur lors de la mise à jour du statut :", error);
+        toast.error("Erreur lors de la mise à jour du statut.");
       }
     };
 
@@ -90,21 +96,11 @@ export default {
       router.push(`/admin/site/edit/${id}`);
     };
 
-    const openCreateSite = () => {
-      showPopup.value = true;
-    };
-
-    const closePopup = () => {
-      showPopup.value = false;
-    };
-
     const filteredSites = computed(() => {
-      return sites.value.filter(site => {
-        return (
-          site.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-          site.url.toLowerCase().includes(searchQuery.value.toLowerCase())
-        );
-      });
+      return sites.value.filter((site) =>
+        site.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        site.url.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
     });
 
     return {
@@ -113,13 +109,13 @@ export default {
       showPopup,
       toggleMaintenance,
       editSite,
-      openCreateSite,
-      closePopup,
       filteredSites,
+      loadSites,
     };
-  }
+  },
 };
 </script>
+
 
 <style scoped>
 button {
@@ -142,7 +138,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   border-bottom: 1px solid #ddd;
 }
@@ -174,7 +171,7 @@ td {
   cursor: pointer;
   margin-top: 50px;
   width: 250px;
-  position: relative; 
+  position: relative;
   left: 82%;
 }
 

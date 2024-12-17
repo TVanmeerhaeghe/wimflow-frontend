@@ -110,6 +110,7 @@
 <script>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -132,6 +133,7 @@ export default {
         const users = ref([]);
         const router = useRouter();
         const route = useRoute();
+        const toast = useToast();
 
         const fetchEstimate = async () => {
             const estimateId = route.params.id;
@@ -224,9 +226,11 @@ export default {
                     body: JSON.stringify(estimate.value),
                 });
 
+                toast.success("Devis mis à jour avec succès !");
                 router.push("/admin/estimate");
             } catch (error) {
                 console.error("Erreur lors de la mise à jour du devis :", error);
+                toast.error("Erreur lors de la mise à jour du devis.");
             }
         };
 

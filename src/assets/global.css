@@ -71,7 +71,11 @@ input {
   box-sizing: border-box;
 }
 
-button {
+.Vue-Toastification__toast--success {
+  background-color: #008f82 !important;
+}
+
+button:not(.Vue-Toastification__close-button) {
   width: 100%;
   padding: 10px 15px;
   background-color: #80d1cc;

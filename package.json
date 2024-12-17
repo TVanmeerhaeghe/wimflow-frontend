@@ -16,7 +16,8 @@
     "html2pdf.js": "^0.10.2",
     "jwt-decode": "^4.0.0",
     "vue": "^3.2.13",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

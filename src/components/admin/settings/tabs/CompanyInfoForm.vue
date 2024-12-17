@@ -42,6 +42,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useToast } from 'vue-toastification';
 
 export default {
     name: 'CompanyInfoForm',
@@ -58,6 +59,8 @@ export default {
             general_sales_conditions: '',
         });
 
+        const toast = useToast();
+
         const fetchCompanyInfo = async () => {
             try {
                 const response = await fetch(`${process.env.VUE_APP_API_URL}/company-info/`, {
@@ -66,10 +69,16 @@ export default {
                         Authorization: `${localStorage.getItem("token")}`,
                     },
                 });
+
+                if (!response.ok) {
+                    throw new Error('Erreur serveur');
+                }
+
                 const data = await response.json();
                 company.value = data;
             } catch (error) {
                 console.error('Erreur lors de la récupération des infos de l\'entreprise', error);
+                toast.error('Erreur lors de la récupération des informations de l\'entreprise.');
             }
         };
 
@@ -85,12 +94,14 @@ export default {
                 });
 
                 if (response.ok) {
-                    alert('Informations enregistrées avec succès.');
+                    toast.success('Informations enregistrées avec succès.');
                 } else {
                     console.error('Erreur lors de la sauvegarde des infos de l\'entreprise');
+                    toast.error('Erreur lors de la sauvegarde des informations de l\'entreprise.');
                 }
             } catch (error) {
                 console.error('Erreur lors de la sauvegarde des infos de l\'entreprise', error);
+                toast.error('Erreur lors de la sauvegarde des informations de l\'entreprise.');
             }
         };
 

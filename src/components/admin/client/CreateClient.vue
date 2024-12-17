@@ -90,10 +90,12 @@
 import Popup from "../../shared/Popup.vue";
 import CreateSite from "../site/CreateSite.vue";
 import { ref, onMounted } from "vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { Popup, CreateSite },
-  setup() {
+  emits: ["created"],
+  setup(props, { emit }) {
     const first_name = ref("");
     const last_name = ref("");
     const company = ref("");
@@ -103,50 +105,77 @@ export default {
     const phone = ref("");
     const email = ref("");
     const client_type = ref("");
-    const status = ref("actif"); // Par défaut : actif
+    const status = ref("actif");
     const selectedSiteId = ref("");
     const sites = ref([]);
     const showSitePopup = ref(false);
+    const toast = useToast();
 
     const fetchSites = async () => {
-      const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
-        headers: { Authorization: `${localStorage.getItem("token")}` },
-      });
-      sites.value = await response.json();
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/site`, {
+          headers: { Authorization: `${localStorage.getItem("token")}` },
+        });
+        sites.value = await response.json();
+      } catch (error) {
+        toast.error("Erreur lors du chargement des sites.");
+      }
     };
 
     onMounted(fetchSites);
 
     const createClient = async () => {
-      const response = await fetch(
-        `${process.env.VUE_APP_API_URL}/client/create`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            first_name: first_name.value,
-            last_name: last_name.value,
-            company: company.value,
-            address: address.value,
-            city: city.value,
-            postal_code: postal_code.value,
-            phone: phone.value,
-            email: email.value,
-            client_type: client_type.value,
-            status: status.value,
-            site_id: selectedSiteId.value,
-          }),
-        }
-      );
+      try {
+        const response = await fetch(
+          `${process.env.VUE_APP_API_URL}/client/create`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              first_name: first_name.value,
+              last_name: last_name.value,
+              company: company.value,
+              address: address.value,
+              city: city.value,
+              postal_code: postal_code.value,
+              phone: phone.value,
+              email: email.value,
+              client_type: client_type.value,
+              status: status.value,
+              site_id: selectedSiteId.value,
+            }),
+          }
+        );
 
-      if (response.ok) {
-        alert("Client créé avec succès");
-      } else {
-        alert("Erreur lors de la création du client");
+        if (response.ok) {
+          toast.success("Client créé avec succès !");
+          resetForm();
+
+          emit("created");
+        } else {
+          const errorData = await response.json();
+          toast.error(`Erreur : ${errorData.message || "Création échouée"}`);
+        }
+      } catch (error) {
+        toast.error("Erreur de connexion au serveur.");
       }
+    };
+
+    const resetForm = () => {
+      first_name.value = "";
+      last_name.value = "";
+      company.value = "";
+      address.value = "";
+      city.value = "";
+      postal_code.value = "";
+      phone.value = "";
+      email.value = "";
+      client_type.value = "";
+      status.value = "actif";
+      selectedSiteId.value = "";
     };
 
     const openCreateSite = () => {
@@ -179,6 +208,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .form-container {

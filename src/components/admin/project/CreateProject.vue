@@ -89,6 +89,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -106,24 +107,35 @@ export default {
         const selectedMember = ref(null);
         const selectedMembers = ref([]);
         const router = useRouter();
+        const toast = useToast();
 
         const fetchClients = async () => {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
-                headers: {
-                    Authorization: localStorage.getItem("token"),
-                },
-            });
-            clients.value = await response.json();
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
+                    headers: {
+                        Authorization: localStorage.getItem("token"),
+                    },
+                });
+                clients.value = await response.json();
+            } catch (error) {
+                console.error("Erreur lors de la récupération des clients :", error);
+                toast.error("Erreur lors de la récupération des clients.");
+            }
         };
 
         const fetchAdmins = async () => {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
-                headers: {
-                    Authorization: localStorage.getItem("token"),
-                },
-            });
-            const allUsers = await response.json();
-            admins.value = allUsers.filter(user => user.role === "admin");
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
+                    headers: {
+                        Authorization: localStorage.getItem("token"),
+                    },
+                });
+                const allUsers = await response.json();
+                admins.value = allUsers.filter(user => user.role === "admin");
+            } catch (error) {
+                console.error("Erreur lors de la récupération des admins :", error);
+                toast.error("Erreur lors de la récupération des administrateurs.");
+            }
         };
 
         onMounted(() => {
@@ -149,7 +161,7 @@ export default {
 
         const handleSubmit = async () => {
             try {
-                await fetch(`${process.env.VUE_APP_API_URL}/project/create`, {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/project/create`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -168,9 +180,17 @@ export default {
                         members: selectedMembers.value,
                     }),
                 });
-                router.push("/admin/project");
+
+                if (response.ok) {
+                    toast.success("Projet créé avec succès !");
+                    router.push("/admin/project");
+                } else {
+                    const errorData = await response.json();
+                    toast.error(`Erreur lors de la création : ${errorData.message || "Erreur inconnue"}`);
+                }
             } catch (error) {
-                console.error("Error creating project", error);
+                console.error("Erreur lors de la création du projet :", error);
+                toast.error("Erreur lors de la création du projet.");
             }
         };
 
@@ -196,7 +216,6 @@ export default {
     },
 };
 </script>
-
 
 <style scoped>
 .create-project {

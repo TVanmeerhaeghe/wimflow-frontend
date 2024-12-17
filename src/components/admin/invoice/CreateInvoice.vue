@@ -110,6 +110,7 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -117,9 +118,7 @@ export default {
             client_id: "",
             commercial_contact_id: "",
             creation_date: new Date().toISOString().slice(0, 10),
-            due_date: new Date(new Date().setMonth(new Date().getMonth() + 1))
-                .toISOString()
-                .slice(0, 10),
+            due_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 10),
             margin_ht: 0,
             status: "Brouillon",
             admin_note: "",
@@ -128,6 +127,7 @@ export default {
             final_note: "",
             general_sales_conditions: "",
         });
+
         const tasks = ref([
             {
                 designation: "",
@@ -137,25 +137,25 @@ export default {
                 tva: 20.0,
             },
         ]);
+
         const clients = ref([]);
         const users = ref([]);
         const router = useRouter();
+        const toast = useToast();
 
         const fetchData = async () => {
             try {
                 const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const clientsData = await clientsResponse.json();
-                clients.value = clientsData;
+                clients.value = await clientsResponse.json();
 
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const usersData = await usersResponse.json();
-                users.value = usersData;
+                users.value = await usersResponse.json();
             } catch (error) {
-                console.error("Error fetching data:", error);
+                toast.error("Erreur lors du chargement des données.");
             }
         };
 
@@ -196,6 +196,7 @@ export default {
                     },
                     body: JSON.stringify({ ...invoice.value }),
                 });
+
                 const newInvoice = await invoiceResponse.json();
 
                 for (const task of tasks.value) {
@@ -216,10 +217,10 @@ export default {
                     },
                 });
 
-                alert("Facture créée avec succès !");
+                toast.success("Facture créée avec succès !");
                 router.push("/admin/invoice");
             } catch (error) {
-                console.error("Erreur lors de la création de la facture :", error);
+                toast.error("Erreur lors de la création de la facture.");
             }
         };
 

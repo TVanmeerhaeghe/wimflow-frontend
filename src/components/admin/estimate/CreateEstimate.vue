@@ -11,7 +11,6 @@
                         </option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="estimate.commercial_contact_id">
@@ -20,12 +19,10 @@
                         </option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Objet</label>
                     <input type="text" v-model="estimate.object" />
                 </div>
-
                 <div class="date-group">
                     <div class="form-group">
                         <label>Date de création</label>
@@ -36,12 +33,10 @@
                         <input type="date" v-model="estimate.validity_date" />
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Marge HT (€)</label>
                     <input type="number" v-model="estimate.margin_ht" />
                 </div>
-
                 <div class="form-group">
                     <label>Statut</label>
                     <select v-model="estimate.status">
@@ -52,13 +47,11 @@
                         <option>Accepté</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Note Admin</label>
                     <textarea v-model="estimate.admin_note"></textarea>
                 </div>
             </div>
-
             <h2>Tâches</h2>
             <div v-for="(task, index) in tasks" :key="index" class="task-group">
                 <div class="task-field designation">
@@ -67,7 +60,7 @@
                 </div>
                 <div class="task-field description">
                     <label>Description</label>
-                    <textarea type="text" v-model="task.description" placeholder="Description détaillée"></textarea>
+                    <textarea v-model="task.description" placeholder="Description détaillée"></textarea>
                 </div>
                 <div class="task-field nb-jours">
                     <label>Nb de jours</label>
@@ -84,22 +77,18 @@
                 <button type="button" @click="removeTask(index)" v-if="tasks.length > 1"
                     class="remove-button">🗑️</button>
             </div>
-
             <div class="button-right">
                 <button type="button" @click="addTask" class="add-task-button">+ Ajouter une tâche</button>
             </div>
-
             <div class="totals">
                 <p>Total HT : {{ totalHT.toFixed(2) }} €</p>
                 <p>Total TVA : {{ totalTVA.toFixed(2) }} €</p>
                 <p>Total TTC : {{ totalTTC.toFixed(2) }} €</p>
             </div>
-
             <div class="form-group">
                 <label>Note Finale</label>
                 <textarea v-model="estimate.final_note"></textarea>
             </div>
-
             <div class="button-right">
                 <button type="submit" class="submit-button">Créer le devis</button>
             </div>
@@ -110,6 +99,7 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
     setup() {
@@ -123,10 +113,7 @@ export default {
             margin_ht: 0,
             status: "Brouillon",
             admin_note: "",
-            advance_payment: 0,
-            discount: 0,
             final_note: "",
-            general_sales_conditions: "",
         });
         const tasks = ref([
             {
@@ -140,24 +127,21 @@ export default {
         const clients = ref([]);
         const users = ref([]);
         const router = useRouter();
+        const toast = useToast();
 
         const fetchData = async () => {
             try {
                 const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const clientsData = await clientsResponse.json();
-                console.log("Clients:", clientsData);
-                clients.value = clientsData;
+                clients.value = await clientsResponse.json();
 
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const usersData = await usersResponse.json();
-                console.log("Users:", usersData);
-                users.value = usersData;
+                users.value = await usersResponse.json();
             } catch (error) {
-                console.error("Error fetching data:", error);
+                toast.error("Erreur lors du chargement des données.");
             }
         };
 
@@ -196,7 +180,7 @@ export default {
                         "Content-Type": "application/json",
                         Authorization: `${localStorage.getItem("token")}`,
                     },
-                    body: JSON.stringify({ ...estimate.value }),
+                    body: JSON.stringify(estimate.value),
                 });
                 const newEstimate = await estimateResponse.json();
 
@@ -218,10 +202,10 @@ export default {
                     },
                 });
 
-                alert("Devis créé avec succès !");
+                toast.success("Devis créé avec succès !");
                 router.push("/admin/estimate");
             } catch (error) {
-                console.error("Erreur lors de la création du devis :", error);
+                toast.error("Erreur lors de la création du devis.");
             }
         };
 

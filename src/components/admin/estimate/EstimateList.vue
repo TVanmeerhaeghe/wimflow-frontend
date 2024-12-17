@@ -22,8 +22,8 @@
                     <td>{{ estimate.Client.company }}</td>
                     <td>{{ Number(estimate.total_ht || 0).toFixed(2) }}</td>
                     <td>{{ Number(estimate.total_tva || 0).toFixed(2) }}</td>
-                    <td>{{ new Date(estimate.creation_date).toLocaleDateString() }}</td>
-                    <td>{{ new Date(estimate.validity_date).toLocaleDateString() }}</td>
+                    <td>{{ formatDate(estimate.creation_date) }}</td>
+                    <td>{{ formatDate(estimate.validity_date) }}</td>
                     <td>{{ estimate.status }}</td>
                     <td>{{ estimate.object }}</td>
                     <td>{{ Number(estimate.margin_ht || 0).toFixed(2) }}</td>
@@ -41,6 +41,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 import EstimatePreview from './EstimatePreview.vue';
 
 export default {
@@ -49,6 +50,23 @@ export default {
         const estimates = ref([]);
         const selectedEstimate = ref(null);
         const router = useRouter();
+        const toast = useToast();
+
+        const fetchEstimates = async () => {
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/estimate`, {
+                    headers: {
+                        Authorization: `${localStorage.getItem("token")}`,
+                    },
+                });
+                if (!response.ok) throw new Error("Erreur lors de la récupération des devis.");
+
+                estimates.value = await response.json();
+            } catch (error) {
+                toast.error("Erreur lors du chargement des devis.");
+                console.error("Fetch error:", error);
+            }
+        };
 
         const goToCreateEstimate = () => {
             router.push("/admin/estimate/create");
@@ -66,14 +84,11 @@ export default {
             router.push(`/admin/estimate/edit/${estimate.id}`);
         };
 
-        onMounted(async () => {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/estimate`, {
-                headers: {
-                    Authorization: `${localStorage.getItem("token")}`,
-                },
-            });
-            estimates.value = await response.json();
-        });
+        const formatDate = (date) => {
+            return new Date(date).toLocaleDateString();
+        };
+
+        onMounted(fetchEstimates);
 
         return {
             estimates,
@@ -82,6 +97,7 @@ export default {
             showPreview,
             closePreview,
             editEstimate,
+            formatDate,
         };
     },
 };

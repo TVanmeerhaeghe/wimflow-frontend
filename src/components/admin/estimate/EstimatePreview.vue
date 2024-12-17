@@ -8,7 +8,8 @@
                 <div class="action-buttons">
                     <button @click="emitEvent('edit', estimate)" class="edit-button" title="Modifier">✏️</button>
                     <button @click="generatePDF" class="pdf-button" title="Télécharger en PDF">📄</button>
-                    <button class="invoice-button" title="Transformer en Facture">💼</button>
+                    <button @click="transformToInvoice" class="invoice-button"
+                        title="Transformer en Facture">💼</button>
                     <button @click="sendEmail" class="email-button" title="Envoyer par email">📧</button>
                     <button @click="emitEvent('close')" class="close-button" title="Fermer">❌</button>
                 </div>
@@ -21,10 +22,8 @@
                         <CompanyInfo />
                         <div class="client-info">
                             <p><strong>Destinataire :</strong> {{ estimate.Client?.company }}</p>
-                            <p><strong>Date de création :</strong> {{ new
-                                Date(estimate.creation_date).toLocaleDateString() }}</p>
-                            <p><strong>Date de validité :</strong> {{ new
-                                Date(estimate.validity_date).toLocaleDateString() }}</p>
+                            <p><strong>Date de création :</strong> {{ formatDate(estimate.creation_date) }}</p>
+                            <p><strong>Date de validité :</strong> {{ formatDate(estimate.validity_date) }}</p>
                         </div>
                     </div>
                     <p><strong>Objet :</strong> {{ estimate.object }}</p>
@@ -49,6 +48,7 @@ import TaskList from '../task/TaskList.vue';
 import CompanyInfo from '../CompanyInfo.vue';
 import CompanyTerms from '../CompanyTerms.vue';
 import html2pdf from 'html2pdf.js';
+import { useToast } from "vue-toastification";
 
 export default {
     props: {
@@ -87,7 +87,11 @@ export default {
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                this.toast.success("PDF téléchargé avec succès !");
+            }).catch(() => {
+                this.toast.error("Erreur lors de la génération du PDF.");
+            });
         },
         async generatePDFForEmail() {
             const element = this.$refs.pdfContent;
@@ -104,10 +108,8 @@ export default {
                     .set(opt)
                     .from(element)
                     .outputPdf('datauristring')
-                    .then((pdfBase64) => {
-                        resolve(pdfBase64);
-                    })
-                    .catch((err) => reject(err));
+                    .then(resolve)
+                    .catch(reject);
             });
         },
         async sendEmail() {
@@ -124,15 +126,25 @@ export default {
                 });
 
                 if (response.ok) {
-                    alert('Devis envoyé par email avec succès.');
+                    this.toast.success("Devis envoyé par email avec succès.");
                 } else {
                     const errorData = await response.json();
-                    alert(`Erreur lors de l'envoi du devis par email : ${errorData.message}`);
+                    this.toast.error(`Erreur lors de l'envoi : ${errorData.message}`);
                 }
             } catch (error) {
-                console.error("Erreur lors de l'envoi de l'email :", error);
+                this.toast.error("Erreur de connexion lors de l'envoi de l'email.");
             }
+        },
+        transformToInvoice() {
+            this.toast.info("Fonctionnalité en cours de développement.");
+        },
+        formatDate(date) {
+            return new Date(date).toLocaleDateString();
         }
+    },
+    setup() {
+        const toast = useToast();
+        return { toast };
     }
 };
 </script>
@@ -203,36 +215,14 @@ export default {
     justify-content: space-between;
 }
 
-.company-info,
 .client-info {
     font-size: 14px;
-}
-
-.tasks-list {
-    margin-top: 20px;
-}
-
-.tasks-list table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tasks-list th,
-.tasks-list td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
 }
 
 .totals {
     font-weight: bold;
     margin-top: 20px;
     text-align: right;
-}
-
-.footer-info {
-    margin-top: 40px;
-    font-size: 12px;
 }
 
 .status-container {
