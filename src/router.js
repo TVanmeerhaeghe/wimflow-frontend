@@ -28,6 +28,7 @@ import ProjectKanban from './components/admin/project/tabs/ProjectKanban.vue';
 import ProjectEdit from './components/admin/project/tabs/ProjectEdit.vue';
 import ProjectInvoices from './components/admin/project/tabs/ProjectInvoices.vue';
 import ProjectEstimates from './components/admin/project/tabs/ProjectEstimates.vue';
+import DateFormat from './components/admin/settings/tabs/DateFormat.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -135,7 +136,14 @@ const routes = [
         path: 'settings',
         component: Settings,
         children: [
-          { path: 'company-info', component: CompanyInfoForm },
+          {
+            path: 'company-info',
+            component: CompanyInfoForm
+          },
+          {
+            path: 'date-format',
+            component: DateFormat,
+          }
         ],
       },
     ],

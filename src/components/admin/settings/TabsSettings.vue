@@ -17,6 +17,7 @@ export default {
 
         const tabs = [
             { path: '/admin/settings/company-info', label: 'Infos de l\'entreprise' },
+            { path: '/admin/settings/date-format', label: 'Format de la date' },
         ];
 
         const isActive = (path) => route.path === path;
