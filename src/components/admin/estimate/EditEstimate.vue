@@ -121,6 +121,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
     setup() {
@@ -146,12 +147,6 @@ export default {
         const router = useRouter();
         const route = useRoute();
         const toast = useToast();
-
-        const formatDate = (dateString) => {
-            if (!dateString) return "";
-            const date = new Date(dateString);
-            return date.toISOString().split("T")[0];
-        };
 
         const fetchEstimate = async () => {
             const estimateId = route.params.id;

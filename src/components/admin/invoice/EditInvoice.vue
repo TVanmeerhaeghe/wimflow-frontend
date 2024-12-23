@@ -122,6 +122,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
     setup() {
@@ -146,11 +147,6 @@ export default {
         const route = useRoute();
         const toast = useToast();
         const projects = ref([]);
-
-        const formatDate = (isoDate) => {
-            const date = new Date(isoDate);
-            return date.toISOString().split("T")[0];
-        };
 
         const fetchInvoice = async () => {
             const invoiceId = route.params.id;
@@ -279,6 +275,7 @@ export default {
             totalTTC,
             updateInvoice,
             projects,
+            formatDate,
         };
     },
 };

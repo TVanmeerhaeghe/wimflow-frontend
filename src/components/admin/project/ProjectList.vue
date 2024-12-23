@@ -37,6 +37,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
     setup() {
@@ -79,11 +80,6 @@ export default {
                 );
             });
         });
-
-        const formatDate = (date) => {
-            if (!date) return "N/A";
-            return new Date(date).toLocaleDateString();
-        };
 
         return {
             projects,

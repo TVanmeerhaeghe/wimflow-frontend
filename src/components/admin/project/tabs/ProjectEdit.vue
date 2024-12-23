@@ -84,6 +84,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
     setup() {
@@ -96,10 +97,6 @@ export default {
         const router = useRouter();
         const toast = useToast();
 
-        const formatDateForInput = (isoDate) => {
-            return isoDate ? isoDate.split('T')[0] : '';
-        };
-
         const fetchProject = async () => {
             try {
                 const response = await fetch(`${process.env.VUE_APP_API_URL}/project/${route.params.id}`, {
@@ -109,8 +106,8 @@ export default {
 
                 project.value = {
                     ...data,
-                    start_date: formatDateForInput(data.start_date),
-                    end_date: formatDateForInput(data.end_date),
+                    start_date: formatDate(data.start_date),
+                    end_date: formatDate(data.end_date),
                 };
                 selectedMembers.value = data.Members.map((member) => member.id);
             } catch (error) {
@@ -194,6 +191,7 @@ export default {
             removeMember,
             getUsername,
             handleUpdate,
+            formatDate,
         };
     },
 };

@@ -49,6 +49,7 @@ import CompanyInfo from '../CompanyInfo.vue';
 import CompanyTerms from '../CompanyTerms.vue';
 import html2pdf from 'html2pdf.js';
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
     props: {
@@ -138,14 +139,15 @@ export default {
         transformToInvoice() {
             this.toast.info("Fonctionnalité en cours de développement.");
         },
-        formatDate(date) {
-            return new Date(date).toLocaleDateString();
-        }
     },
     setup() {
         const toast = useToast();
-        return { toast };
-    }
+        return {
+            toast,
+            formatDate,
+        };
+    },
+
 };
 </script>
 

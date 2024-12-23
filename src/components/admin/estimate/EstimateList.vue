@@ -43,6 +43,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import EstimatePreview from './EstimatePreview.vue';
+import formatDate from "@/utils/formatDate";
 
 export default {
     components: { EstimatePreview },
@@ -82,10 +83,6 @@ export default {
 
         const editEstimate = (estimate) => {
             router.push(`/admin/estimate/edit/${estimate.id}`);
-        };
-
-        const formatDate = (date) => {
-            return new Date(date).toLocaleDateString();
         };
 
         onMounted(fetchEstimates);

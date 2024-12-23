@@ -37,6 +37,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useToast } from "vue-toastification";
+import formatDate from "@/utils/formatDate";
 
 export default {
   setup() {
@@ -122,11 +123,6 @@ export default {
       } catch (error) {
         toast.error("Erreur lors de la mise à jour du statut.");
       }
-    };
-
-    const formatDate = (date) => {
-      if (!date) return "N/A";
-      return new Date(date).toLocaleDateString();
     };
 
     const statusSelectClass = (status) => {

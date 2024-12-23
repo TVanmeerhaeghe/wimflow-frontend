@@ -54,6 +54,7 @@ import CreateMaintenance from './CreateMaintenance.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import formatDate from "@/utils/formatDate";
 
 export default {
   components: {
@@ -132,11 +133,6 @@ export default {
 
     const closePopup = () => {
       showPopup.value = false;
-    };
-
-    const formatDate = (date) => {
-      if (!date) return null;
-      return new Date(date).toLocaleDateString();
     };
 
     const getStatusClass = (status) => {
