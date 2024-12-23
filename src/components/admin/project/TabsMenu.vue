@@ -23,7 +23,10 @@ export default {
         const tabs = [
             { path: '/overview', label: 'Aperçu' },
             { path: '/kanban', label: 'Kanban' },
+            { path: '/invoices', label: 'Factures' },
+            { path: '/estimates', label: 'Devis' },
             { path: '/edit', label: 'Modifier' },
+
         ];
 
         const isActive = (path) => route.path === `/admin/project/details/${props.projectId}${path}`;

@@ -5,7 +5,9 @@
             <h2>Détails de la tâche</h2>
             <p><strong>Titre :</strong> {{ task.title }}</p>
             <p><strong>Description :</strong> {{ task.description }}</p>
-            <p><strong>Statut :</strong> {{ task.status }}</p>
+            <button class="delete-button" @click="$emit('delete', task.id)">
+                🗑 Supprimer
+            </button>
         </div>
     </div>
 </template>
@@ -54,5 +56,21 @@ export default {
     cursor: pointer;
     color: red;
     width: 100%;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: #d9534f;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.delete-button:hover {
+    color: #c9302c;
 }
 </style>

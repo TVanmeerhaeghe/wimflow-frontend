@@ -26,6 +26,8 @@ import ProjectDetails from './components/admin/project/ProjectDetails.vue';
 import ProjectOverview from './components/admin/project/tabs/ProjectOverview.vue';
 import ProjectKanban from './components/admin/project/tabs/ProjectKanban.vue';
 import ProjectEdit from './components/admin/project/tabs/ProjectEdit.vue';
+import ProjectInvoices from './components/admin/project/tabs/ProjectInvoices.vue';
+import ProjectEstimates from './components/admin/project/tabs/ProjectEstimates.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -114,6 +116,14 @@ const routes = [
           {
             path: 'kanban',
             component: ProjectKanban,
+          },
+          {
+            path: 'estimates',
+            component: ProjectEstimates,
+          },
+          {
+            path: 'invoices',
+            component: ProjectInvoices,
           },
           {
             path: 'edit',

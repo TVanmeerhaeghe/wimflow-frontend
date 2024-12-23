@@ -13,6 +13,17 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Projet (facultatif)</label>
+                    <select v-model="invoice.project_id">
+                        <option value="" disabled selected>Aucun</option>
+                        <option v-for="project in projects" :key="project.id" :value="project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="invoice.commercial_contact_id">
                         <option v-for="user in users" :key="user.id" :value="user.id">
@@ -134,6 +145,12 @@ export default {
         const router = useRouter();
         const route = useRoute();
         const toast = useToast();
+        const projects = ref([]);
+
+        const formatDate = (isoDate) => {
+            const date = new Date(isoDate);
+            return date.toISOString().split("T")[0];
+        };
 
         const fetchInvoice = async () => {
             const invoiceId = route.params.id;
@@ -143,6 +160,8 @@ export default {
                 });
                 const invoiceData = await invoiceResponse.json();
                 invoice.value = invoiceData;
+                invoiceData.creation_date = formatDate(invoiceData.creation_date);
+                invoiceData.due_date = formatDate(invoiceData.due_date);
                 tasks.value = invoiceData.InvoiceTasks || [];
             } catch (error) {
                 console.error("Erreur lors de la récupération de la facture :", error);
@@ -157,6 +176,17 @@ export default {
                 clients.value = await clientsResponse.json();
             } catch (error) {
                 console.error("Erreur lors de la récupération des clients :", error);
+            }
+        };
+
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/project`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                projects.value = await response.json();
+            } catch (error) {
+                console.error("Erreur lors de la récupération des projets :", error);
             }
         };
 
@@ -236,6 +266,7 @@ export default {
             fetchInvoice();
             fetchClients();
             fetchUsers();
+            fetchProjects();
         });
 
         return {
@@ -247,6 +278,7 @@ export default {
             totalTVA,
             totalTTC,
             updateInvoice,
+            projects,
         };
     },
 };

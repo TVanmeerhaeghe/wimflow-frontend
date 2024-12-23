@@ -13,6 +13,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Projet (facultatif)</label>
+                    <select v-model="invoice.project_id">
+                        <option value="" disabled selected>Aucun</option>
+                        <option v-for="project in projects" :key="project.id" :value="project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="invoice.commercial_contact_id">
                         <option v-for="user in users" :key="user.id" :value="user.id">
@@ -117,6 +127,7 @@ export default {
         const invoice = ref({
             client_id: "",
             commercial_contact_id: "",
+            project_id: "",
             creation_date: new Date().toISOString().slice(0, 10),
             due_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 10),
             margin_ht: 0,
@@ -142,6 +153,7 @@ export default {
         const users = ref([]);
         const router = useRouter();
         const toast = useToast();
+        const projects = ref([]);
 
         const fetchData = async () => {
             try {
@@ -149,6 +161,11 @@ export default {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
                 clients.value = await clientsResponse.json();
+
+                const projectsResponse = await fetch(`${process.env.VUE_APP_API_URL}/project`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                projects.value = await projectsResponse.json();
 
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
@@ -228,6 +245,7 @@ export default {
 
         return {
             invoice,
+            projects,
             tasks,
             clients,
             users,

@@ -13,6 +13,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Projet</label>
+                    <select v-model="estimate.project_id">
+                        <option value="" disabled>Choisir un projet</option>
+                        <option v-for="project in projects" :key="project.id" :value="project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="estimate.commercial_contact_id">
                         <option v-for="user in users" :key="user.id" :value="user.id">
@@ -118,6 +128,7 @@ export default {
             id: null,
             client_id: "",
             commercial_contact_id: "",
+            project_id: "",
             creation_date: "",
             validity_date: "",
             margin_ht: 0,
@@ -131,9 +142,16 @@ export default {
         const tasks = ref([]);
         const clients = ref([]);
         const users = ref([]);
+        const projects = ref([]);
         const router = useRouter();
         const route = useRoute();
         const toast = useToast();
+
+        const formatDate = (dateString) => {
+            if (!dateString) return "";
+            const date = new Date(dateString);
+            return date.toISOString().split("T")[0];
+        };
 
         const fetchEstimate = async () => {
             const estimateId = route.params.id;
@@ -142,34 +160,36 @@ export default {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
                 const estimateData = await estimateResponse.json();
-                estimate.value = estimateData;
+                estimate.value = {
+                    ...estimateData,
+                    creation_date: formatDate(estimateData.creation_date),
+                    validity_date: formatDate(estimateData.validity_date),
+                };
                 tasks.value = estimateData.EstimateTasks || [];
             } catch (error) {
                 console.error("Erreur lors de la récupération du devis :", error);
             }
         };
 
-        const fetchClients = async () => {
+        const fetchData = async () => {
             try {
                 const clientsResponse = await fetch(`${process.env.VUE_APP_API_URL}/client`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const clientsData = await clientsResponse.json();
-                clients.value = clientsData;
-            } catch (error) {
-                console.error("Erreur lors de la récupération des clients :", error);
-            }
-        };
+                clients.value = await clientsResponse.json();
 
-        const fetchUsers = async () => {
-            try {
                 const usersResponse = await fetch(`${process.env.VUE_APP_API_URL}/user`, {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
-                const usersData = await usersResponse.json();
-                users.value = usersData;
+                users.value = await usersResponse.json();
+
+                const projectsResponse = await fetch(`${process.env.VUE_APP_API_URL}/project`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                projects.value = await projectsResponse.json();
             } catch (error) {
-                console.error("Erreur lors de la récupération des utilisateurs :", error);
+                toast.error("Erreur lors du chargement des données.");
+                console.error("Erreur dans fetchData :", error);
             }
         };
 
@@ -180,7 +200,7 @@ export default {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `${localStorage.getItem("token")}`,
+                        Authorization: `${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify(task),
                 });
@@ -221,7 +241,7 @@ export default {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `${localStorage.getItem("token")}`,
+                        Authorization: `${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify(estimate.value),
                 });
@@ -236,8 +256,7 @@ export default {
 
         onMounted(() => {
             fetchEstimate();
-            fetchClients();
-            fetchUsers();
+            fetchData();
         });
 
         return {
@@ -245,6 +264,7 @@ export default {
             tasks,
             clients,
             users,
+            projects,
             totalHT,
             totalTVA,
             totalTTC,
@@ -253,6 +273,7 @@ export default {
     },
 };
 </script>
+
 
 <style scoped>
 .form-container {

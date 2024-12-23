@@ -12,6 +12,14 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label>Projet</label>
+                    <select v-model="estimate.project_id">
+                        <option v-for="project in projects" :key="project.id" :value="project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Contact commercial</label>
                     <select v-model="estimate.commercial_contact_id">
                         <option v-for="user in users" :key="user.id" :value="user.id">
@@ -128,6 +136,7 @@ export default {
         const users = ref([]);
         const router = useRouter();
         const toast = useToast();
+        const projects = ref([]);
 
         const fetchData = async () => {
             try {
@@ -140,6 +149,12 @@ export default {
                     headers: { Authorization: `${localStorage.getItem("token")}` },
                 });
                 users.value = await usersResponse.json();
+
+                const projectsResponse = await fetch(`${process.env.VUE_APP_API_URL}/project`, {
+                    headers: { Authorization: `${localStorage.getItem("token")}` },
+                });
+                projects.value = await projectsResponse.json();
+
             } catch (error) {
                 toast.error("Erreur lors du chargement des données.");
             }
@@ -216,6 +231,7 @@ export default {
             tasks,
             clients,
             users,
+            projects,
             addTask,
             removeTask,
             createEstimate,

@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <TaskDetailsModal v-if="selectedTask" :task="selectedTask" @close="closeTaskDetails" />
+        <TaskDetailsModal v-if="selectedTask" :task="selectedTask" @close="closeTaskDetails" @delete="deleteTask" />
 
         <div v-if="showNewTaskModal" class="modal-overlay">
             <div class="modal">
@@ -167,6 +167,30 @@ export default {
             draggedTask.value = null;
         };
 
+        const deleteTask = async (taskId) => {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer cette tâche ?")) return;
+
+            try {
+                const response = await fetch(`${process.env.VUE_APP_API_URL}/project/project-task/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: localStorage.getItem('token'),
+                    },
+                });
+
+                if (response.ok) {
+                    toast.success("Tâche supprimée avec succès !");
+                    fetchTasks();
+                    closeTaskDetails();
+                } else {
+                    toast.error("Erreur lors de la suppression de la tâche.");
+                }
+            } catch (error) {
+                toast.error("Erreur réseau lors de la suppression.");
+            }
+        };
+
+
         onMounted(fetchTasks);
 
         return {
@@ -184,6 +208,7 @@ export default {
             onDragEnd,
             onDragStart,
             onDrop,
+            deleteTask
         };
     },
 };
