@@ -75,7 +75,7 @@ input {
   background-color: #008f82 !important;
 }
 
-button:not(.Vue-Toastification__close-button) {
+button:not(.Vue-Toastification__close-button, .close-button) {
   width: 100%;
   padding: 10px 15px;
   background-color: #80d1cc;
