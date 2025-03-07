@@ -25,6 +25,7 @@ export default {
             { path: '/kanban', label: 'Kanban' },
             { path: '/invoices', label: 'Factures' },
             { path: '/estimates', label: 'Devis' },
+            { path: '/file', label: 'Fichier' },
             { path: '/edit', label: 'Modifier' },
 
         ];

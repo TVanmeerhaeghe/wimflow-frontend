@@ -29,6 +29,7 @@ import ProjectEdit from './components/admin/project/tabs/ProjectEdit.vue';
 import ProjectInvoices from './components/admin/project/tabs/ProjectInvoices.vue';
 import ProjectEstimates from './components/admin/project/tabs/ProjectEstimates.vue';
 import DateFormat from './components/admin/settings/tabs/DateFormat.vue';
+import ProjectFile from './components/admin/project/tabs/ProjectFile.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -125,6 +126,10 @@ const routes = [
           {
             path: 'invoices',
             component: ProjectInvoices,
+          },
+          {
+            path: 'file',
+            component: ProjectFile,
           },
           {
             path: 'edit',
